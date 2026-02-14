@@ -10,61 +10,84 @@ import Settiing from "./components/Setting";
 
 function App() {
   const [background, setBackground] = useState<string>("");
-  const sampleApps = [
+  const initApps = [
     {
-      id: "finder",
-      name: "Finder",
-      icon: "https://cdn.jim-nielsen.com/macos/1024/finder-2021-09-10.png?rf=1024",
+      id: "Blog",
+      name: "Blog",
+      icon: "/blog.webp",
     },
     {
-      id: "calculator",
-      name: "Calculator",
-      icon: "https://cdn.jim-nielsen.com/macos/1024/calculator-2021-04-29.png?rf=1024",
+      id: "ChatPlatform",
+      name: "ChatPlatform",
+      icon: "/chat.webp",
     },
     {
-      id: "terminal",
-      name: "Terminal",
-      icon: "https://cdn.jim-nielsen.com/macos/1024/terminal-2021-06-03.png?rf=1024",
+      id: "ComponentLibrary",
+      name: "ComponentLibrary",
+      icon: "/component.webp",
     },
     {
-      id: "mail",
-      name: "Mail",
-      icon: "https://cdn.jim-nielsen.com/macos/1024/mail-2021-05-25.png?rf=1024",
+      id: "MediaLibrary",
+      name: "MediaLibrary",
+      icon: "/mediaLibrary.webp",
     },
     {
-      id: "notes",
-      name: "Notes",
-      icon: "https://cdn.jim-nielsen.com/macos/1024/notes-2021-05-25.png?rf=1024",
+      id: "GitHub",
+      name: "GitHub",
+      icon: "/github.webp",
     },
     {
-      id: "safari",
-      name: "Safari",
-      icon: "https://cdn.jim-nielsen.com/macos/1024/safari-2021-06-02.png?rf=1024",
+      id: "Blog5",
+      name: "Blog",
+      icon: "/blog.webp",
     },
     {
-      id: "photos",
-      name: "Photos",
-      icon: "https://cdn.jim-nielsen.com/macos/1024/photos-2021-05-28.png?rf=1024",
+      id: "ChatPlatform4",
+      name: "ChatPlatform",
+      icon: "/chat.webp",
     },
     {
-      id: "music",
-      name: "Music",
-      icon: "https://cdn.jim-nielsen.com/macos/1024/music-2021-05-25.png?rf=1024",
+      id: "ComponentLibrary3",
+      name: "ComponentLibrary",
+      icon: "/component.webp",
     },
     {
-      id: "calendar",
-      name: "Calendar",
-      icon: "https://cdn.jim-nielsen.com/macos/1024/calendar-2021-04-29.png?rf=1024",
+      id: "MediaLibrary2",
+      name: "MediaLibrary",
+      icon: "/mediaLibrary.webp",
+    },
+    {
+      id: "GitHub1",
+      name: "GitHub",
+      icon: "/github.webp",
+    },
+    {
+      id: "Blog51",
+      name: "Blog",
+      icon: "/blog.webp",
+    },
+    {
+      id: "ChatPlatform41",
+      name: "ChatPlatform",
+      icon: "/chat.webp",
+    },
+    {
+      id: "ComponentLibrary31",
+      name: "ComponentLibrary",
+      icon: "/component.webp",
+    },
+    {
+      id: "MediaLibrary21",
+      name: "MediaLibrary",
+      icon: "/mediaLibrary.webp",
+    },
+    {
+      id: "GitHub11",
+      name: "GitHub",
+      icon: "/github.webp",
     },
   ];
-  const [openApps, setOpenApps] = useState<string[]>(["finder", "safari"]);
-  const handleAppClick = (appId: string) => {
-    setOpenApps((prev) =>
-      prev.includes(appId)
-        ? prev.filter((id) => id !== appId)
-        : [...prev, appId],
-    );
-  };
+
   useEffect(() => {
     request("/api/media/randomByTag", {
       method: "post",
@@ -73,6 +96,7 @@ function App() {
         tags: ["Background"],
       },
     }).then((res: CommonResponse) => {
+      console.log(res);
       if (res.code === codeMap.success) {
         setBackground(res.data[0].sourcePath);
       }
@@ -151,9 +175,8 @@ function App() {
           )}
           <div className="flex flex-col justify-center items-center gap-[2vmin] select-none">
             <MacOSDock
-              apps={sampleApps}
-              onAppClick={handleAppClick}
-              openApps={openApps}
+              initApps={initApps}
+              onAppClick={(appId) => console.log(appId)}
             />
             <div className="text-center">
               <p className="text-[2vmin] text-white">
