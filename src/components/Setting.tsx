@@ -1,3 +1,4 @@
+"use client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +20,10 @@ export default function Settiing(props: any) {
     fetchInitMessageTool(message);
   }, []);
 
-  const [floatOpenStatus, setFloatOpenStatus] = useState<boolean>(true);
+  const [floatOpenStatus, setFloatOpenStatus] = useState<boolean>(
+    localStorage.getItem("floatClose") ? false : true,
+  );
+
   const checkSeason = () => {
     const month = new Date().getMonth() + 1;
     if (month === 10 || month === 11 || month === 12 || month === 1) {
@@ -36,12 +40,22 @@ export default function Settiing(props: any) {
     if (floatOpenStatus) {
       closedFloat();
       setFloatOpenStatus(false);
+      localStorage.setItem("floatClose", "true");
     } else {
-      seasonSelect(checkSeason());
-
+      const season = checkSeason();
+      seasonSelect(season);
       setFloatOpenStatus(true);
+      localStorage.setItem("floatClose", "");
     }
   };
+
+  useEffect(() => {
+    if (!localStorage.getItem("floatClose")) {
+      const season = checkSeason();
+      seasonSelect(season);
+    }
+  }, []);
+
   return (
     <AnimatePresence>
       {showSetting && (
