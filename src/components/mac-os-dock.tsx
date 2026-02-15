@@ -319,6 +319,25 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
 
   const padding = Math.max(8, baseIconSize * 0.12);
 
+  const [folderPageCount, setFolderPageCount] = useState<number>(0);
+  const [currentFolderPage, setCurrentFolderPage] = useState<number>(0);
+  useEffect(() => {
+    setFolderPageCount(
+      Math.ceil(folderApps.filter((app) => app.id !== "folder").length / 9),
+    );
+  }, [folderApps]);
+  const draggerableContainer = useRef<HTMLDivElement>(null);
+  const pageContainer = useRef<HTMLDivElement>(null);
+  const handlePageChange = (pageIndex: number) => {
+    setCurrentFolderPage(pageIndex);
+    const rect = pageContainer.current.getBoundingClientRect();
+    gsap.to(draggerableContainer.current, {
+      x: -pageIndex * rect.width,
+      duration: 0.5,
+      ease: "power2.out",
+    });
+  };
+
   return (
     <>
       <div
@@ -373,7 +392,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
               >
                 {app.id === "folder" ? (
                   <div
-                    className="w-full h-full p-1.25"
+                    className="w-full h-full p-[9.25%]"
                     style={{
                       filter: `drop-shadow(0 ${scale > 1.2 ? Math.max(2, baseIconSize * 0.05) : Math.max(1, baseIconSize * 0.03)}px ${scale > 1.2 ? Math.max(4, baseIconSize * 0.1) : Math.max(2, baseIconSize * 0.06)}px rgba(0,0,0,${0.2 + (scale - 1) * 0.15}))`,
                     }}
@@ -392,29 +411,68 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
                         borderRadius="20%"
                         glowIntensity="xl"
                         draggable={false}
-                        className="z-10 flex items-start relative overflow-hidden"
+                        className="z-10 flex items-start relative overflow-hidden cursor-default"
                       >
-                        <div className="w-full h-full grid grid-cols-3 gap-[1vmin] p-[3vmin]">
-                          {folderApps
-                            .filter((app) => app.id !== "folder")
-                            .slice(0, 9)
-                            .map((app) => {
+                        <div
+                          className="h-full w-full flex flex-col"
+                          ref={pageContainer}
+                        >
+                          <div
+                            className="h-full flex flex-1"
+                            style={{
+                              width: `${folderPageCount * 100}%`,
+                            }}
+                            ref={draggerableContainer}
+                          >
+                            {Array.from({
+                              length: folderPageCount,
+                            }).map((_, pageIndex) => {
                               return (
                                 <div
-                                  key={app.id}
-                                  className="flex flex-col justify-center items-center overflow-hidden"
+                                  key={pageIndex}
+                                  className="w-full h-full grid grid-cols-3 grid-rows-3 gap-[1vmin] p-[3vmin] pb-[4vmin]"
                                 >
-                                  <img
-                                    src={app.icon}
-                                    alt={app.name}
-                                    className="object-contain h-[calc(100%-2vmin)]"
-                                  />
-                                  <div className="text-white text-[2vmin] leading-[2vmin] w-full text-center truncate">
-                                    {app.name}
-                                  </div>
+                                  {folderApps
+                                    .filter((app) => app.id !== "folder")
+                                    .slice(pageIndex * 9, (pageIndex + 1) * 9)
+                                    .map((app) => {
+                                      return (
+                                        <div
+                                          key={app.id}
+                                          className="cursor-pointer group hover:scale-110 transition-transform duration-200 flex flex-col justify-center items-center overflow-hidden"
+                                        >
+                                          <img
+                                            src={app.icon}
+                                            alt={app.name}
+                                            className="group-hover:brightness-80 transition-all duration-200 object-contain h-[calc(100%-2vmin)]"
+                                          />
+                                          <div className="text-white text-[2vmin] leading-[2vmin] w-full text-center truncate">
+                                            {app.name}
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
                                 </div>
                               );
                             })}
+                          </div>
+                          {folderPageCount > 1 && (
+                            <div className="absolute bottom-[1.8vmin] left-1/2 -translate-x-1/2 flex gap-[1vmin]">
+                              {Array.from({ length: folderPageCount }).map(
+                                (_, dotIndex) => (
+                                  <div
+                                    key={dotIndex}
+                                    className={`w-[1vmin] h-[1vmin] transition-all duration-500 rounded-full ${
+                                      currentFolderPage === dotIndex
+                                        ? "bg-white"
+                                        : "bg-gray-400"
+                                    } cursor-pointer`}
+                                    onClick={() => handlePageChange(dotIndex)}
+                                  />
+                                ),
+                              )}
+                            </div>
+                          )}
                         </div>
                       </LiquidGlassCard>
                     </div>

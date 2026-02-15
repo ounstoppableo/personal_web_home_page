@@ -171,7 +171,7 @@ export const LiquidGlassCard = ({
           className={`absolute inset-0 ${blurClasses[blurIntensity]} z-0`}
           style={{
             borderRadius,
-            filter: "url(#glass-blur)",
+            backdropFilter: "blur(10px)",
           }}
         />
 

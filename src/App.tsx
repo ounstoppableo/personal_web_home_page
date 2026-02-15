@@ -86,6 +86,107 @@ function App() {
       name: "GitHub",
       icon: "/github.webp",
     },
+    {
+      id: "Blog51",
+      name: "Blog",
+      icon: "/blog.webp",
+    },
+    {
+      id: "ChatPlatform41",
+      name: "ChatPlatform",
+      icon: "/chat.webp",
+    },
+    {
+      id: "ComponentLibrary31",
+      name: "ComponentLibrary",
+      icon: "/component.webp",
+    },
+    {
+      id: "MediaLibrary21",
+      name: "MediaLibrary",
+      icon: "/mediaLibrary.webp",
+    },
+    {
+      id: "GitHub91",
+      name: "GitHub",
+      icon: "/github.webp",
+    },
+
+    {
+      id: "Blog61",
+      name: "Blog",
+      icon: "/blog.webp",
+    },
+    {
+      id: "ChatPlatform51",
+      name: "ChatPlatform",
+      icon: "/chat.webp",
+    },
+    {
+      id: "ComponentLibrary41",
+      name: "ComponentLibrary",
+      icon: "/component.webp",
+    },
+    {
+      id: "MediaLibrary31",
+      name: "MediaLibrary",
+      icon: "/mediaLibrary.webp",
+    },
+    {
+      id: "GitHub21",
+      name: "GitHub",
+      icon: "/github.webp",
+    },
+    {
+      id: "Blog111",
+      name: "Blog",
+      icon: "/blog.webp",
+    },
+    {
+      id: "ChatPlatform141",
+      name: "ChatPlatform",
+      icon: "/chat.webp",
+    },
+    {
+      id: "ComponentLibrary131",
+      name: "ComponentLibrary",
+      icon: "/component.webp",
+    },
+    {
+      id: "MediaLibrary121",
+      name: "MediaLibrary",
+      icon: "/mediaLibrary.webp",
+    },
+    {
+      id: "GitHub111",
+      name: "GitHub",
+      icon: "/github.webp",
+    },
+    {
+      id: "Blog1111",
+      name: "Blog",
+      icon: "/blog.webp",
+    },
+    {
+      id: "ChatPlatform1141",
+      name: "ChatPlatform",
+      icon: "/chat.webp",
+    },
+    {
+      id: "ComponentLibrary1131",
+      name: "ComponentLibrary",
+      icon: "/component.webp",
+    },
+    {
+      id: "MediaLibrary1121",
+      name: "MediaLibrary",
+      icon: "/mediaLibrary.webp",
+    },
+    {
+      id: "GitHub2111",
+      name: "GitHub",
+      icon: "/github.webp",
+    },
   ];
 
   useEffect(() => {
