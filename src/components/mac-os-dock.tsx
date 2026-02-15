@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useRef, useCallback, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { LiquidGlassCard } from "./liquid-notification";
 import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 // Types for the component
 interface DockApp {
@@ -215,6 +217,8 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
   // Throttled mouse movement handler
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
+      const isNonPC = !window.matchMedia("(hover: hover)").matches;
+      if (isNonPC) return;
       const now = performance.now();
 
       if (now - lastMouseMoveTime.current < 16) {
@@ -248,24 +252,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
 
   const handleAppClick = (appId: string, index: number) => {
     if (iconRefs.current[index]) {
-      if (typeof window !== "undefined" && (window as any).gsap) {
-        const gsap = (window as any).gsap;
-        const bounceHeight =
-          currentScales[index] > 1.3
-            ? -baseIconSize * 0.2
-            : -baseIconSize * 0.15;
-
-        gsap.to(iconRefs.current[index], {
-          y: bounceHeight,
-          duration: 0.2,
-          ease: "power2.out",
-          yoyo: true,
-          repeat: 1,
-          transformOrigin: "bottom center",
-        });
-      } else {
-        createBounceAnimation(iconRefs.current[index]!);
-      }
+      createBounceAnimation(iconRefs.current[index]!);
     }
     _handleAppClick(appId);
     if (appId !== "folder") {
@@ -273,7 +260,15 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
     }
   };
   const appContainerRef = useRef<HTMLDivElement>(null);
-  const handleFolderClick = () => {
+  const appContainerFixedAnchorRef = useRef<HTMLDivElement>(null);
+  const [folderContainerPosition, setFolderContainerPosition] = useState<{
+    x: number;
+    y: number;
+  } | null>({ x: 0, y: 0 });
+  const { contextSafe: contextSafeForFolderContainer } = useGSAP({
+    scope: appContainerRef.current,
+  });
+  const handleFolderClick = contextSafeForFolderContainer(() => {
     if (openAppsRef.current.includes("folder")) {
       gsap.fromTo(
         appContainerRef.current,
@@ -285,6 +280,11 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
         },
       );
     } else {
+      const rect = appContainerFixedAnchorRef.current.getBoundingClientRect();
+      setFolderContainerPosition({
+        x: rect.left,
+        y: rect.top,
+      });
       gsap.fromTo(
         appContainerRef.current,
         { scale: 0, opacity: 0 },
@@ -292,10 +292,20 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
           scale: 1,
           opacity: 1,
           duration: 0.4,
+          onComplete: () => {
+            gsap.fromTo(
+              appContainerRef.current.querySelector(".blurContainer"),
+              { backdropFilter: "blur(0px)" },
+              {
+                backdropFilter: "blur(10px)",
+                duration: 0.4,
+              },
+            );
+          },
         },
       );
     }
-  };
+  });
 
   useEffect(() => {
     const cb = () => {
@@ -328,7 +338,11 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
   }, [folderApps]);
   const draggerableContainer = useRef<HTMLDivElement>(null);
   const pageContainer = useRef<HTMLDivElement>(null);
-  const handlePageChange = (pageIndex: number) => {
+
+  const { contextSafe: contextSafeForPageContainer } = useGSAP({
+    scope: draggerableContainer.current,
+  });
+  const handlePageChange = contextSafeForPageContainer((pageIndex: number) => {
     setCurrentFolderPage(pageIndex);
     const rect = pageContainer.current.getBoundingClientRect();
     gsap.to(draggerableContainer.current, {
@@ -336,7 +350,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
       duration: 0.5,
       ease: "power2.out",
     });
-  };
+  });
 
   return (
     <>
@@ -345,7 +359,6 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
         className={`backdrop-blur-md ${className}`}
         style={{
           width: `${contentWidth + padding * 2}px`,
-          background: "rgba(45, 45, 45, 0.75)",
           borderRadius: `${Math.max(12, baseIconSize * 0.4)}px`,
           border: "1px solid rgba(255, 255, 255, 0.15)",
           boxShadow: `
@@ -399,83 +412,95 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
                     onClick={handleFolderClick}
                   >
                     <div
-                      ref={appContainerRef}
-                      className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full w-[40vmin] h-[40vmin] origin-[50%_100%] opacity-0 scale-0"
-                      onMouseMove={(e) => e.stopPropagation()}
-                      onMouseEnter={handleMouseLeave}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <LiquidGlassCard
-                        shadowIntensity="md"
-                        blurIntensity="lg"
-                        borderRadius="20%"
-                        glowIntensity="xl"
-                        draggable={false}
-                        className="z-10 flex items-start relative overflow-hidden cursor-default"
+                      ref={appContainerFixedAnchorRef}
+                      className="absolute w-[40vmin] h-[40vmin] origin-[50%_100%] pointer-events-none top-0 left-1/2 -translate-x-1/2 -translate-y-full"
+                    ></div>
+                    {createPortal(
+                      <div
+                        ref={appContainerRef}
+                        className="absolute w-[40vmin] h-[40vmin] origin-[50%_100%] opacity-0 scale-0"
+                        style={{
+                          top: folderContainerPosition.y + "px",
+                          left: folderContainerPosition.x + "px",
+                        }}
+                        onMouseMove={(e) => e.stopPropagation()}
+                        onMouseEnter={handleMouseLeave}
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        <div
-                          className="h-full w-full flex flex-col"
-                          ref={pageContainer}
+                        <LiquidGlassCard
+                          shadowIntensity="md"
+                          blurIntensity="lg"
+                          borderRadius="20%"
+                          glowIntensity="xl"
+                          draggable={false}
+                          className="z-10 flex items-start relative overflow-hidden cursor-default"
                         >
                           <div
-                            className="h-full flex flex-1"
-                            style={{
-                              width: `${folderPageCount * 100}%`,
-                            }}
-                            ref={draggerableContainer}
+                            className="h-full w-full flex flex-col"
+                            ref={pageContainer}
                           >
-                            {Array.from({
-                              length: folderPageCount,
-                            }).map((_, pageIndex) => {
-                              return (
-                                <div
-                                  key={pageIndex}
-                                  className="w-full h-full grid grid-cols-3 grid-rows-3 gap-[1vmin] p-[3vmin] pb-[4vmin]"
-                                >
-                                  {folderApps
-                                    .filter((app) => app.id !== "folder")
-                                    .slice(pageIndex * 9, (pageIndex + 1) * 9)
-                                    .map((app) => {
-                                      return (
-                                        <div
-                                          key={app.id}
-                                          className="cursor-pointer group hover:scale-110 transition-transform duration-200 flex flex-col justify-center items-center overflow-hidden"
-                                        >
-                                          <img
-                                            src={app.icon}
-                                            alt={app.name}
-                                            className="group-hover:brightness-80 transition-all duration-200 object-contain h-[calc(100%-2vmin)]"
-                                          />
-                                          <div className="text-white text-[2vmin] leading-[2vmin] w-full text-center truncate">
-                                            {app.name}
-                                          </div>
-                                        </div>
-                                      );
-                                    })}
-                                </div>
-                              );
-                            })}
-                          </div>
-                          {folderPageCount > 1 && (
-                            <div className="absolute bottom-[1.8vmin] left-1/2 -translate-x-1/2 flex gap-[1vmin]">
-                              {Array.from({ length: folderPageCount }).map(
-                                (_, dotIndex) => (
+                            <div
+                              className="h-full flex flex-1"
+                              style={{
+                                width: `${folderPageCount * 100}%`,
+                              }}
+                              ref={draggerableContainer}
+                            >
+                              {Array.from({
+                                length: folderPageCount,
+                              }).map((_, pageIndex) => {
+                                return (
                                   <div
-                                    key={dotIndex}
-                                    className={`w-[1vmin] h-[1vmin] transition-all duration-500 rounded-full ${
-                                      currentFolderPage === dotIndex
-                                        ? "bg-white"
-                                        : "bg-gray-400"
-                                    } cursor-pointer`}
-                                    onClick={() => handlePageChange(dotIndex)}
-                                  />
-                                ),
-                              )}
+                                    key={pageIndex}
+                                    className="w-full h-full grid grid-cols-3 grid-rows-3 gap-[1vmin] p-[3vmin] pb-[4vmin]"
+                                  >
+                                    {folderApps
+                                      .filter((app) => app.id !== "folder")
+                                      .slice(pageIndex * 9, (pageIndex + 1) * 9)
+                                      .map((app) => {
+                                        return (
+                                          <div
+                                            key={app.id}
+                                            className="cursor-pointer group hover:scale-110 transition-transform duration-200 flex flex-col justify-center items-center overflow-hidden"
+                                          >
+                                            <img
+                                              src={app.icon}
+                                              alt={app.name}
+                                              className="group-hover:brightness-80 transition-all duration-200 object-contain h-[calc(100%-2vmin)]"
+                                            />
+                                            <div className="text-white text-[2vmin] leading-[2vmin] w-full text-center truncate">
+                                              {app.name}
+                                            </div>
+                                          </div>
+                                        );
+                                      })}
+                                  </div>
+                                );
+                              })}
                             </div>
-                          )}
-                        </div>
-                      </LiquidGlassCard>
-                    </div>
+                            {folderPageCount > 1 && (
+                              <div className="absolute bottom-[1.8vmin] left-1/2 -translate-x-1/2 flex gap-[1vmin]">
+                                {Array.from({ length: folderPageCount }).map(
+                                  (_, dotIndex) => (
+                                    <div
+                                      key={dotIndex}
+                                      className={`w-[1vmin] h-[1vmin] transition-all duration-500 rounded-full ${
+                                        currentFolderPage === dotIndex
+                                          ? "bg-white"
+                                          : "bg-gray-400"
+                                      } cursor-pointer`}
+                                      onClick={() => handlePageChange(dotIndex)}
+                                    />
+                                  ),
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </LiquidGlassCard>
+                      </div>,
+                      document.body,
+                    )}
+
                     <LiquidGlassCard
                       shadowIntensity="md"
                       blurIntensity="lg"

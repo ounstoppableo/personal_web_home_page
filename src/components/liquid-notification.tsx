@@ -168,10 +168,10 @@ export const LiquidGlassCard = ({
       >
         {/* Bend Layer (Backdrop blur with distortion) */}
         <div
-          className={`absolute inset-0 ${blurClasses[blurIntensity]} z-0`}
+          className={`blurContainer absolute inset-0 ${blurClasses[blurIntensity]} z-0`}
           style={{
             borderRadius,
-            backdropFilter: "blur(10px)",
+            backdropFilter: `blur(10px)`,
           }}
         />
 
