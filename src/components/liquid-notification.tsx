@@ -177,7 +177,7 @@ export const LiquidGlassCard = ({
 
         {/* Face Layer (Main shadow and glow) */}
         <div
-          className="absolute inset-0 z-10"
+          className="absolute inset-0 z-20 pointer-events-none"
           style={{
             borderRadius,
             boxShadow: glowStyles[glowIntensity],
@@ -186,7 +186,7 @@ export const LiquidGlassCard = ({
 
         {/* Edge Layer (Inner highlights) */}
         <div
-          className="absolute inset-0 z-20"
+          className="absolute inset-0 z-20 pointer-events-none"
           style={{
             borderRadius,
             boxShadow: shadowStyles[shadowIntensity],
@@ -194,7 +194,7 @@ export const LiquidGlassCard = ({
         />
 
         {/* Content */}
-        <div className={cn("relative z-30 w-full h-full overflow-hidden")}>
+        <div className={cn("relative z-10 w-full h-full overflow-hidden")}>
           {children}
         </div>
       </MotionComponent>

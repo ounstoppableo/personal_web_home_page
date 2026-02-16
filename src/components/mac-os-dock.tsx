@@ -5,7 +5,9 @@ import { createPortal } from "react-dom";
 import { LiquidGlassCard } from "./liquid-notification";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-
+import { Draggable, InertiaPlugin } from "gsap/all";
+gsap.registerPlugin(Draggable);
+gsap.registerPlugin(InertiaPlugin);
 // Types for the component
 interface DockApp {
   id: string;
@@ -272,14 +274,28 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
     requestAnimationFrame(() => {
       const appContainerRect =
         appContainerFixedAnchorRef.current.getBoundingClientRect();
-      setFolderContainerPosition({
-        x: appContainerRect.left,
-        y: appContainerRect.top,
-      });
+      if (appContainerRect.width + appContainerRect.left > innerWidth) {
+        setFolderContainerPosition({
+          x: innerWidth - appContainerRect.width - 8,
+          y: appContainerRect.top,
+        });
+      } else {
+        setFolderContainerPosition({
+          x: appContainerRect.left,
+          y: appContainerRect.top,
+        });
+      }
     });
   };
+
+  const draggableRef = useRef<any>([]);
   const handleFolderClick = contextSafeForFolderContainer(() => {
+    draggableRef.current.forEach((draggableInst) => draggableInst.kill());
     if (openAppsRef.current.includes("folder")) {
+      setCurrentFolderPage(0);
+      gsap.set(draggableContainer.current, {
+        x: 0,
+      });
       gsap.fromTo(
         appContainerRef.current,
         { scale: 1, opacity: 1 },
@@ -307,22 +323,43 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
                 duration: 0.4,
               },
             );
+            const appContainerRect =
+              appContainerRef.current.getBoundingClientRect();
+
+            draggableRef.current = Draggable.create(
+              draggableContainer.current,
+              {
+                type: "x",
+                bounds: {
+                  minX: -(folderPageCount - 1) * appContainerRect.width,
+                  maxX: 0,
+                },
+                inertia: true,
+                snap: {
+                  x: Array.from({ length: folderPageCount }).map(
+                    (_, index) => -index * appContainerRect.width,
+                  ),
+                },
+                edgeResistance: 0.8,
+                dragResistance: 0.3,
+                onThrowComplete() {
+                  setCurrentFolderPage(
+                    Math.abs(Math.round(this.x / appContainerRect.width)),
+                  );
+                },
+              },
+            );
           },
         },
       );
     }
   });
-
   useEffect(() => {
-    const cb = () => {
-      if (openAppsRef.current.includes("folder")) {
-        handleFolderClick();
-        _handleAppClick("folder");
-      }
+    return () => {
+      draggableRef.current.forEach((draggableInst) => draggableInst.kill());
     };
-    window.addEventListener("click", cb);
-    return () => window.removeEventListener("click", cb);
   }, []);
+
   // Calculate content width
   const contentWidth =
     currentPositions.length > 0
@@ -346,16 +383,16 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
       Math.ceil(folderApps.filter((app) => app.id !== "folder").length / 9),
     );
   }, [folderApps]);
-  const draggerableContainer = useRef<HTMLDivElement>(null);
+  const draggableContainer = useRef<HTMLDivElement>(null);
   const pageContainer = useRef<HTMLDivElement>(null);
 
   const { contextSafe: contextSafeForPageContainer } = useGSAP({
-    scope: draggerableContainer.current,
+    scope: draggableContainer.current,
   });
   const handlePageChange = contextSafeForPageContainer((pageIndex: number) => {
     setCurrentFolderPage(pageIndex);
     const rect = pageContainer.current.getBoundingClientRect();
-    gsap.to(draggerableContainer.current, {
+    gsap.to(draggableContainer.current, {
       x: -pageIndex * rect.width,
       duration: 0.5,
       ease: "power2.out",
@@ -375,6 +412,27 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
     return () => window.removeEventListener("resize", handleResize);
   }, [getResponsiveConfig, handleFolderClick, _handleAppClick]);
 
+  useEffect(() => {
+    let flag = false;
+    const mouseupCb = () => {
+      if (flag && openAppsRef.current.includes("folder")) {
+        handleFolderClick();
+        _handleAppClick("folder");
+      }
+      flag = false;
+    };
+    const mousedownCb = (e: any) => {
+      if (!e.target.closest(".appContainer")) {
+        flag = true;
+      }
+    };
+    window.addEventListener("mousedown", mousedownCb);
+    window.addEventListener("mouseup", mouseupCb);
+    return () => {
+      window.removeEventListener("mousedown", mousedownCb);
+      window.removeEventListener("mouseup", mouseupCb);
+    };
+  }, []);
   return (
     <>
       <div
@@ -441,7 +499,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
                     {createPortal(
                       <div
                         ref={appContainerRef}
-                        className="absolute w-[40vmin] h-[40vmin] origin-[50%_100%] opacity-0 scale-0"
+                        className="appContainer absolute w-[40vmin] h-[40vmin] origin-[50%_100%] opacity-0 scale-0"
                         style={{
                           top: folderContainerPosition.y + "px",
                           left: folderContainerPosition.x + "px",
@@ -459,66 +517,75 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
                           className="z-10 flex items-start relative overflow-hidden cursor-default"
                         >
                           <div
-                            className="h-full w-full flex flex-col select-none"
+                            className="h-full w-full flex flex-col select-none relative z-10"
                             ref={pageContainer}
                           >
-                            <div
-                              className="h-full flex flex-1"
-                              style={{
-                                width: `${folderPageCount * 100}%`,
-                              }}
-                              ref={draggerableContainer}
-                            >
-                              {Array.from({
-                                length: folderPageCount,
-                              }).map((_, pageIndex) => {
-                                return (
-                                  <div
-                                    key={pageIndex}
-                                    className="w-full h-full grid grid-cols-3 grid-rows-3 gap-[1vmin] p-[3vmin] pb-[4vmin]"
-                                  >
-                                    {folderApps
-                                      .filter((app) => app.id !== "folder")
-                                      .slice(pageIndex * 9, (pageIndex + 1) * 9)
-                                      .map((app) => {
-                                        return (
-                                          <div
-                                            key={app.id}
-                                            className="cursor-pointer group hover:scale-110 transition-transform duration-200 flex flex-col justify-center items-center overflow-hidden"
-                                          >
-                                            <img
-                                              src={app.icon}
-                                              alt={app.name}
-                                              className="group-hover:brightness-80 transition-all duration-200 object-contain h-[calc(100%-2vmin)]"
-                                            />
-                                            <div className="text-white text-[2vmin] leading-[2vmin] w-full text-center truncate">
-                                              {app.name}
-                                            </div>
-                                          </div>
-                                        );
-                                      })}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                            {folderPageCount > 1 && (
-                              <div className="absolute bottom-[1.8vmin] left-1/2 -translate-x-1/2 flex gap-[1vmin]">
-                                {Array.from({ length: folderPageCount }).map(
-                                  (_, dotIndex) => (
+                            {folderApps.length === 0 ? (
+                              <div className="text-[3vmin] leading-[3vmin] w-full h-full flex justify-center items-center text-muted">
+                                暂无数据
+                              </div>
+                            ) : (
+                              <div
+                                className="h-full flex flex-1"
+                                style={{
+                                  width: `${folderPageCount * 100}%`,
+                                }}
+                                ref={draggableContainer}
+                              >
+                                {Array.from({
+                                  length: folderPageCount,
+                                }).map((_, pageIndex) => {
+                                  return (
                                     <div
-                                      key={dotIndex}
-                                      className={`w-[1vmin] h-[1vmin] transition-all duration-500 rounded-full ${
-                                        currentFolderPage === dotIndex
-                                          ? "bg-white"
-                                          : "bg-gray-400"
-                                      } cursor-pointer`}
-                                      onClick={() => handlePageChange(dotIndex)}
-                                    />
-                                  ),
-                                )}
+                                      key={pageIndex}
+                                      className="w-full h-full grid grid-cols-3 grid-rows-3 gap-[1vmin] p-[3vmin] pb-[4vmin]"
+                                    >
+                                      {folderApps
+                                        .filter((app) => app.id !== "folder")
+                                        .slice(
+                                          pageIndex * 9,
+                                          (pageIndex + 1) * 9,
+                                        )
+                                        .map((app) => {
+                                          return (
+                                            <div
+                                              key={app.id}
+                                              className="cursor-pointer group hover:scale-110 transition-transform duration-200 flex flex-col justify-center items-center overflow-hidden"
+                                            >
+                                              <img
+                                                src={app.icon}
+                                                alt={app.name}
+                                                className="group-hover:brightness-80 transition-all duration-200 object-contain h-[calc(100%-2vmin)]"
+                                              />
+                                              <div className="text-white text-[2vmin] leading-[2vmin] w-full text-center truncate">
+                                                {app.name}
+                                              </div>
+                                            </div>
+                                          );
+                                        })}
+                                    </div>
+                                  );
+                                })}
                               </div>
                             )}
                           </div>
+                          {folderPageCount > 1 && (
+                            <div className="absolute bottom-[1.8vmin] left-1/2 -translate-x-1/2 flex gap-[1vmin] z-20">
+                              {Array.from({ length: folderPageCount }).map(
+                                (_, dotIndex) => (
+                                  <div
+                                    key={dotIndex}
+                                    className={`w-[1vmin] h-[1vmin] transition-all duration-500 rounded-full ${
+                                      currentFolderPage === dotIndex
+                                        ? "bg-white"
+                                        : "bg-gray-400"
+                                    } cursor-pointer`}
+                                    onClick={() => handlePageChange(dotIndex)}
+                                  />
+                                ),
+                              )}
+                            </div>
+                          )}
                         </LiquidGlassCard>
                       </div>,
                       document.body,
