@@ -38,7 +38,10 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
     _setOpenApps(appIds);
   };
   const [folderApps] = useState<DockApp[]>(folder ? initApps.slice(5) : []);
-  const [mouseX, setMouseX] = useState<number | null>(null);
+  const mouseXSync = useRef<number | null>(null);
+  const setMouseX = (value: number) => {
+    mouseXSync.current = value;
+  };
   const [currentScales, setCurrentScales] = useState<number[]>(
     apps.map(() => 1),
   );
@@ -97,20 +100,10 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
     }
   }, []);
 
-  const [config, setConfig] = useState(getResponsiveConfig);
+  const [config, setConfig] = useState(getResponsiveConfig());
   const { baseIconSize, maxScale, effectWidth } = config;
   const minScale = 1.0;
   const baseSpacing = Math.max(4, baseIconSize * 0.08);
-
-  // Update config on window resize
-  useEffect(() => {
-    const handleResize = () => {
-      setConfig(getResponsiveConfig());
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [getResponsiveConfig]);
 
   // Authentic macOS cosine-based magnification algorithm
   const calculateTargetMagnification = useCallback(
@@ -162,11 +155,21 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
     setCurrentPositions(initialPositions);
   }, [apps, calculatePositions, minScale, config]);
 
+  const createBounceAnimation = (element: HTMLElement) => {
+    const bounceHeight = Math.max(-8, -baseIconSize * 0.15);
+    element.style.transition = "transform 0.2s ease-out";
+    element.style.transform = `translateY(${bounceHeight}px)`;
+
+    setTimeout(() => {
+      element.style.transform = "translateY(0px)";
+    }, 200);
+  };
+
   // Animation loop
   const animateToTarget = useCallback(() => {
-    const targetScales = calculateTargetMagnification(mouseX);
+    const targetScales = calculateTargetMagnification(mouseXSync.current);
     const targetPositions = calculatePositions(targetScales);
-    const lerpFactor = mouseX !== null ? 0.2 : 0.12;
+    const lerpFactor = mouseXSync.current !== null ? 0.2 : 0.12;
 
     setCurrentScales((prevScales) => {
       return prevScales.map((currentScale, index) => {
@@ -189,11 +192,14 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
       (pos, index) => Math.abs(pos - targetPositions[index]) > 0.1,
     );
 
-    if (scalesNeedUpdate || positionsNeedUpdate || mouseX !== null) {
+    if (
+      scalesNeedUpdate ||
+      positionsNeedUpdate ||
+      mouseXSync.current !== null
+    ) {
       animationFrameRef.current = requestAnimationFrame(animateToTarget);
     }
   }, [
-    mouseX,
     calculateTargetMagnification,
     calculatePositions,
     currentScales,
@@ -214,6 +220,11 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
     };
   }, [animateToTarget]);
 
+  const dockeRect = useRef<any>({});
+  useEffect(() => {
+    dockeRect.current = dockRef.current.getBoundingClientRect();
+  }, []);
+
   // Throttled mouse movement handler
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
@@ -228,9 +239,8 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
       lastMouseMoveTime.current = now;
 
       if (dockRef.current) {
-        const rect = dockRef.current.getBoundingClientRect();
         const padding = Math.max(8, baseIconSize * 0.12);
-        setMouseX(e.clientX - rect.left - padding);
+        setMouseX(e.clientX - dockeRect.current.left - padding);
       }
     },
     [baseIconSize],
@@ -239,16 +249,6 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
   const handleMouseLeave = useCallback(() => {
     setMouseX(null);
   }, []);
-
-  const createBounceAnimation = (element: HTMLElement) => {
-    const bounceHeight = Math.max(-8, -baseIconSize * 0.15);
-    element.style.transition = "transform 0.2s ease-out";
-    element.style.transform = `translateY(${bounceHeight}px)`;
-
-    setTimeout(() => {
-      element.style.transform = "translateY(0px)";
-    }, 200);
-  };
 
   const handleAppClick = (appId: string, index: number) => {
     if (iconRefs.current[index]) {
@@ -268,6 +268,16 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
   const { contextSafe: contextSafeForFolderContainer } = useGSAP({
     scope: appContainerRef.current,
   });
+  const updateAppContainerPosition = () => {
+    requestAnimationFrame(() => {
+      const appContainerRect =
+        appContainerFixedAnchorRef.current.getBoundingClientRect();
+      setFolderContainerPosition({
+        x: appContainerRect.left,
+        y: appContainerRect.top,
+      });
+    });
+  };
   const handleFolderClick = contextSafeForFolderContainer(() => {
     if (openAppsRef.current.includes("folder")) {
       gsap.fromTo(
@@ -280,11 +290,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
         },
       );
     } else {
-      const rect = appContainerFixedAnchorRef.current.getBoundingClientRect();
-      setFolderContainerPosition({
-        x: rect.left,
-        y: rect.top,
-      });
+      updateAppContainerPosition();
       gsap.fromTo(
         appContainerRef.current,
         { scale: 0, opacity: 0 },
@@ -326,11 +332,15 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
           ),
         )
       : apps.length * (baseIconSize + baseSpacing) - baseSpacing;
-
   const padding = Math.max(8, baseIconSize * 0.12);
 
   const [folderPageCount, setFolderPageCount] = useState<number>(0);
-  const [currentFolderPage, setCurrentFolderPage] = useState<number>(0);
+  const [currentFolderPage, _setCurrentFolderPage] = useState<number>(0);
+  const currentFolderPageSync = useRef<number>(currentFolderPage);
+  const setCurrentFolderPage = (page: number) => {
+    _setCurrentFolderPage(page);
+    currentFolderPageSync.current = page;
+  };
   useEffect(() => {
     setFolderPageCount(
       Math.ceil(folderApps.filter((app) => app.id !== "folder").length / 9),
@@ -351,6 +361,19 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
       ease: "power2.out",
     });
   });
+
+  // Update config on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (openAppsRef.current.includes("folder")) {
+        handleFolderClick();
+        _handleAppClick("folder");
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [getResponsiveConfig, handleFolderClick, _handleAppClick]);
 
   return (
     <>
@@ -436,7 +459,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
                           className="z-10 flex items-start relative overflow-hidden cursor-default"
                         >
                           <div
-                            className="h-full w-full flex flex-col"
+                            className="h-full w-full flex flex-col select-none"
                             ref={pageContainer}
                           >
                             <div
