@@ -7,6 +7,7 @@ import MacOSDock from "./components/mac-os-dock";
 import dayjs from "dayjs";
 import solarLunar from "solarLunar";
 import Settiing from "./components/Setting";
+import SafariDialog from "./components/safariDialog";
 
 function App() {
   const [background, setBackground] = useState<string>("");
@@ -232,7 +233,8 @@ function App() {
 
   return (
     <>
-      <div className="w-dvw h-dvh relative">
+      <div className="w-dvw h-dvh relative select-none">
+        <SafariDialog></SafariDialog>
         <div className="absolute right-[8vmin] bottom-[6vmin]">
           <Settiing showSetting={showSetting}></Settiing>
         </div>
@@ -274,7 +276,7 @@ function App() {
               </div>
             </div>
           )}
-          <div className="flex flex-col justify-center items-center gap-[2vmin] select-none">
+          <div className="dialogBottomBoundary flex flex-col justify-center items-center gap-[2vmin] select-none">
             <MacOSDock
               initApps={initApps}
               onAppClick={(appId) => console.log(appId)}

@@ -102,7 +102,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
     }
   }, []);
 
-  const [config, setConfig] = useState(getResponsiveConfig());
+  const [config] = useState(getResponsiveConfig());
   const { baseIconSize, maxScale, effectWidth } = config;
   const minScale = 1.0;
   const baseSpacing = Math.max(4, baseIconSize * 0.08);
@@ -433,6 +433,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
       window.removeEventListener("mouseup", mouseupCb);
     };
   }, []);
+
   return (
     <>
       <div
