@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import request from "./utils/fetch";
 import type { CommonResponse } from "./types/response";
@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 import solarLunar from "solarLunar";
 import Settiing from "./components/Setting";
 import SafariDialog from "./components/safariDialog";
+import { createRoot } from "react-dom/client";
 
 function App() {
   const [background, setBackground] = useState<string>("");
@@ -16,21 +17,25 @@ function App() {
       id: "Blog",
       name: "Blog",
       icon: "/blog.webp",
+      url: import.meta.env.VITE_BLOG_URL,
     },
     {
       id: "ChatPlatform",
       name: "ChatPlatform",
       icon: "/chat.webp",
+      url: import.meta.env.VITE_CHATPLATFORM_URL,
     },
     {
       id: "ComponentLibrary",
       name: "ComponentLibrary",
       icon: "/component.webp",
+      url: import.meta.env.VITE_COMPONENTLIBRARY_URL,
     },
     {
       id: "MediaLibrary",
       name: "MediaLibrary",
       icon: "/mediaLibrary.webp",
+      url: import.meta.env.VITE_MEDIALIBRARY_URL,
     },
     {
       id: "GitHub",
@@ -198,7 +203,6 @@ function App() {
         tags: ["Background"],
       },
     }).then((res: CommonResponse) => {
-      console.log(res);
       if (res.code === codeMap.success) {
         setBackground(res.data[0].sourcePath);
       }
@@ -210,7 +214,7 @@ function App() {
     lunar: solarLunar.solar2lunar(
       dayjs(now).format("YYYY"),
       dayjs(now).format("MM"),
-      dayjs(now).format("DD"),
+      dayjs(now).format("DD")
     ),
   });
   const updateTimeInfo = () => {
@@ -220,21 +224,54 @@ function App() {
       lunar: solarLunar.solar2lunar(
         dayjs(now).format("YYYY"),
         dayjs(now).format("MM"),
-        dayjs(now).format("DD"),
+        dayjs(now).format("DD")
       ),
     });
   };
   useEffect(() => {
-    const interval = setInterval(updateTimeInfo, 60000);
+    const interval = setInterval(updateTimeInfo, 1000);
     return () => clearInterval(interval);
   }, []);
 
   const [showSetting] = useState<boolean>(true);
+  const dialogContainerRef = useRef(null);
+  const dialogRootContainerRef = useRef(null);
+  const [dialogList, _setDialogList] = useState([]);
+  const dialogListSync = useRef(dialogList);
+  const setDialogList = (value) => {
+    dialogListSync.current = value;
+    _setDialogList(value);
+  };
+  const onAppClick = (app) => {
+    const _set = new Set(dialogList.map((item) => item.id));
+    if (!_set.has(app.id)) {
+      setDialogList([
+        ...dialogListSync.current,
+        {
+          ...app,
+          open: true,
+          minimize: false,
+        },
+      ]);
+    } else {
+      const index = dialogList.findIndex((item) => item.id === app.id);
+      setDialogList([
+        ...dialogListSync.current.slice(0, index),
+        {
+          ...dialogListSync.current[index],
+          minimize: !dialogListSync.current[index].minimize,
+        },
+        ...dialogListSync.current.slice(
+          index + 1,
+          dialogListSync.current.length
+        ),
+      ]);
+    }
+  };
 
   return (
     <>
       <div className="w-dvw h-dvh relative select-none">
-        <SafariDialog></SafariDialog>
         <div className="absolute right-[8vmin] bottom-[6vmin]">
           <Settiing showSetting={showSetting}></Settiing>
         </div>
@@ -247,7 +284,10 @@ function App() {
             <div className="absolute inset-0 w-full h-full overflow-hidden -z-1 bg-black/20"></div>
           </>
         )}
-        <div className="w-full h-full overflow-hidden flex justify-between items-center flex-col px-[6vmin] pt-[8vmin] pb-[2vmin]">
+        <div
+          className="w-full h-full overflow-hidden flex justify-between items-center flex-col px-[6vmin] pt-[8vmin] pb-[2vmin]"
+          ref={dialogContainerRef}
+        >
           {timeInfo.default && (
             <div className="select-none flex flex-col items-center text-shadow-lg gap-[1vmin] mt-[6vmin]">
               <div className="text-[12vmin] leading-[12vmin] font-extrabold text-white text-center flex items-center gap-[1vmin]">
@@ -276,16 +316,62 @@ function App() {
               </div>
             </div>
           )}
-          <div className="dialogBottomBoundary flex flex-col justify-center items-center gap-[2vmin] select-none">
-            <MacOSDock
-              initApps={initApps}
-              onAppClick={(appId) => console.log(appId)}
-            />
+          <div className="dialogBottomBoundary flex flex-col justify-center items-center gap-[2vmin] select-none z-[var(--maxZIndex)]">
+            <MacOSDock initApps={initApps} onAppClick={onAppClick} />
             <div className="text-center">
               <p className="text-[2vmin] text-white">
                 © 2026 Unstoppable840. All rights reserved.
               </p>
             </div>
+          </div>
+          <div
+            ref={dialogRootContainerRef}
+            className="absolute inset-0 pointer-events-none"
+          >
+            {dialogList.map((item) => (
+              <SafariDialog
+                defaultOpen={item.open}
+                defaultMinimize={item.minimize}
+                handleOpenChange={(openStatus) => {
+                  const index = dialogListSync.current.findIndex(
+                    (_item) => _item.id === item.id
+                  );
+                  setDialogList([
+                    ...dialogListSync.current.slice(0, index),
+                    { ...dialogListSync.current[index], open: openStatus },
+                    ...dialogListSync.current.slice(
+                      index + 1,
+                      dialogListSync.current.length
+                    ),
+                  ]);
+                }}
+                handleMinimizeChange={(minimizeStatus) => {
+                  const index = dialogListSync.current.findIndex(
+                    (_item) => _item.id === item.id
+                  );
+                  setDialogList([
+                    ...dialogListSync.current.slice(0, index),
+                    {
+                      ...dialogListSync.current[index],
+                      minimize: minimizeStatus,
+                    },
+                    ...dialogListSync.current.slice(
+                      index + 1,
+                      dialogListSync.current.length
+                    ),
+                  ]);
+                }}
+                key={item.id}
+                title={item.name}
+                onClose={() => {
+                  setDialogList(
+                    dialogList.filter((_item) => _item.id !== item.id)
+                  );
+                }}
+              >
+                <iframe className="w-full h-full" src={item.url}></iframe>
+              </SafariDialog>
+            ))}
           </div>
         </div>
       </div>

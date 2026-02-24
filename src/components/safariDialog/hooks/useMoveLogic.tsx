@@ -2,18 +2,24 @@ import gsap from "gsap";
 import { useEffect, useRef } from "react";
 
 export default function useMoveLogic(props: any) {
-  const { dialogRef, dialogHeaderRef, xTo, yTo } = props;
+  const {
+    dialogRef,
+    dialogHeaderRef,
+    xTo,
+    yTo,
+    fullscreen,
+    setMovingOrResizing,
+  } = props;
   const moveFlag = useRef<boolean>(false);
   const mousedownPosition = useRef({ mouseX: 0, mouseY: 0, x: 0, y: 0 });
   const boundary = useRef({ top: 0, left: 0, right: 0, bottom: 0 });
-  const dialogRect = useRef<any>({});
+  const dialogRect = useRef<any>({ width: 0, height: 0 });
+
+  // TODO: moveingOrResizing需放到全局store
   useEffect(() => {
     dialogRect.current = dialogRef.current.getBoundingClientRect();
-    gsap.set(dialogRef.current, {
-      x: innerWidth / 2 - dialogRect.current.width / 2,
-      y: innerHeight / 2 - dialogRect.current.height / 2,
-    });
     const mousedownCb = (e: any) => {
+      setMovingOrResizing(true);
       moveFlag.current = true;
       mousedownPosition.current = {
         mouseX: e.x,
@@ -28,6 +34,7 @@ export default function useMoveLogic(props: any) {
       boundary.current.right = innerWidth - dialogRect.current.width;
     };
     const mousemoveCb = (e: any) => {
+      if (fullscreen) return;
       if (moveFlag.current) {
         const targetX =
           mousedownPosition.current.x + e.x - mousedownPosition.current.mouseX;
@@ -61,7 +68,9 @@ export default function useMoveLogic(props: any) {
     };
     const mouseupCb = () => {
       moveFlag.current = false;
+      setMovingOrResizing(false);
     };
+
     dialogHeaderRef.current.addEventListener("mousedown", mousedownCb);
     window.addEventListener("mousemove", mousemoveCb);
     window.addEventListener("mouseup", mouseupCb);
@@ -70,6 +79,6 @@ export default function useMoveLogic(props: any) {
       window.removeEventListener("mousemove", mousemoveCb);
       window.removeEventListener("mouseup", mouseupCb);
     };
-  }, []);
+  }, [fullscreen]);
   return {};
 }

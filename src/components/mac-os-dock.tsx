@@ -17,7 +17,7 @@ interface DockApp {
 
 interface MacOSDockProps {
   initApps: DockApp[];
-  onAppClick: (appId: string) => void;
+  onAppClick: (app: any) => void;
   className?: string;
   folder?: boolean;
 }
@@ -31,7 +31,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
   const [apps] = useState<DockApp[]>(
     folder
       ? [...initApps.slice(0, 5), { id: "folder", name: "Folder", icon: "" }]
-      : initApps,
+      : initApps
   );
   const [openApps, _setOpenApps] = useState<string[]>([]);
   const openAppsRef = useRef<string[]>(openApps);
@@ -45,7 +45,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
     mouseXSync.current = value;
   };
   const [currentScales, setCurrentScales] = useState<number[]>(
-    apps.map(() => 1),
+    apps.map(() => 1)
   );
   const [currentPositions, setCurrentPositions] = useState<number[]>([]);
   const dockRef = useRef<HTMLDivElement>(null);
@@ -57,7 +57,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
     setOpenApps((prev) =>
       prev.includes(appId)
         ? prev.filter((id) => id !== appId)
-        : [...prev, appId],
+        : [...prev, appId]
     );
   };
 
@@ -131,7 +131,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
         return minScale + scaleFactor * (maxScale - minScale);
       });
     },
-    [apps, baseIconSize, baseSpacing, effectWidth, maxScale, minScale],
+    [apps, baseIconSize, baseSpacing, effectWidth, maxScale, minScale]
   );
 
   // Calculate positions based on current scales
@@ -146,7 +146,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
         return centerX;
       });
     },
-    [baseIconSize, baseSpacing],
+    [baseIconSize, baseSpacing]
   );
 
   // Initialize positions
@@ -188,10 +188,10 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
     });
 
     const scalesNeedUpdate = currentScales.some(
-      (scale, index) => Math.abs(scale - targetScales[index]) > 0.002,
+      (scale, index) => Math.abs(scale - targetScales[index]) > 0.002
     );
     const positionsNeedUpdate = currentPositions.some(
-      (pos, index) => Math.abs(pos - targetPositions[index]) > 0.1,
+      (pos, index) => Math.abs(pos - targetPositions[index]) > 0.1
     );
 
     if (
@@ -245,7 +245,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
         setMouseX(e.clientX - dockeRect.current.left - padding);
       }
     },
-    [baseIconSize],
+    [baseIconSize]
   );
 
   const handleMouseLeave = useCallback(() => {
@@ -258,7 +258,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
     }
     _handleAppClick(appId);
     if (appId !== "folder") {
-      onAppClick(appId);
+      onAppClick(initApps.find((app) => app.id === appId));
     }
   };
   const appContainerRef = useRef<HTMLDivElement>(null);
@@ -303,7 +303,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
           scale: 0,
           opacity: 0,
           duration: 0.4,
-        },
+        }
       );
     } else {
       updateAppContainerPosition();
@@ -321,7 +321,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
               {
                 backdropFilter: "blur(10px)",
                 duration: 0.4,
-              },
+              }
             );
             const appContainerRect =
               appContainerRef.current.getBoundingClientRect();
@@ -337,20 +337,20 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
                 inertia: true,
                 snap: {
                   x: Array.from({ length: folderPageCount }).map(
-                    (_, index) => -index * appContainerRect.width,
+                    (_, index) => -index * appContainerRect.width
                   ),
                 },
                 edgeResistance: 0.8,
                 dragResistance: 0.3,
                 onThrowComplete() {
                   setCurrentFolderPage(
-                    Math.abs(Math.round(this.x / appContainerRect.width)),
+                    Math.abs(Math.round(this.x / appContainerRect.width))
                   );
                 },
-              },
+              }
             );
           },
-        },
+        }
       );
     }
   });
@@ -365,8 +365,8 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
     currentPositions.length > 0
       ? Math.max(
           ...currentPositions.map(
-            (pos, index) => pos + (baseIconSize * currentScales[index]) / 2,
-          ),
+            (pos, index) => pos + (baseIconSize * currentScales[index]) / 2
+          )
         )
       : apps.length * (baseIconSize + baseSpacing) - baseSpacing;
   const padding = Math.max(8, baseIconSize * 0.12);
@@ -380,7 +380,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
   };
   useEffect(() => {
     setFolderPageCount(
-      Math.ceil(folderApps.filter((app) => app.id !== "folder").length / 9),
+      Math.ceil(folderApps.filter((app) => app.id !== "folder").length / 9)
     );
   }, [folderApps]);
   const draggableContainer = useRef<HTMLDivElement>(null);
@@ -444,8 +444,14 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
           borderRadius: `${Math.max(12, baseIconSize * 0.4)}px`,
           border: "1px solid rgba(255, 255, 255, 0.15)",
           boxShadow: `
-          0 ${Math.max(4, baseIconSize * 0.1)}px ${Math.max(16, baseIconSize * 0.4)}px rgba(0, 0, 0, 0.4),
-          0 ${Math.max(2, baseIconSize * 0.05)}px ${Math.max(8, baseIconSize * 0.2)}px rgba(0, 0, 0, 0.3),
+          0 ${Math.max(4, baseIconSize * 0.1)}px ${Math.max(
+            16,
+            baseIconSize * 0.4
+          )}px rgba(0, 0, 0, 0.4),
+          0 ${Math.max(2, baseIconSize * 0.05)}px ${Math.max(
+            8,
+            baseIconSize * 0.2
+          )}px rgba(0, 0, 0, 0.3),
           inset 0 1px 0 rgba(255, 255, 255, 0.15),
           inset 0 -1px 0 rgba(0, 0, 0, 0.2)
         `,
@@ -489,7 +495,15 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
                   <div
                     className="w-full h-full p-[9.25%]"
                     style={{
-                      filter: `drop-shadow(0 ${scale > 1.2 ? Math.max(2, baseIconSize * 0.05) : Math.max(1, baseIconSize * 0.03)}px ${scale > 1.2 ? Math.max(4, baseIconSize * 0.1) : Math.max(2, baseIconSize * 0.06)}px rgba(0,0,0,${0.2 + (scale - 1) * 0.15}))`,
+                      filter: `drop-shadow(0 ${
+                        scale > 1.2
+                          ? Math.max(2, baseIconSize * 0.05)
+                          : Math.max(1, baseIconSize * 0.03)
+                      }px ${
+                        scale > 1.2
+                          ? Math.max(4, baseIconSize * 0.1)
+                          : Math.max(2, baseIconSize * 0.06)
+                      }px rgba(0,0,0,${0.2 + (scale - 1) * 0.15}))`,
                     }}
                     onClick={handleFolderClick}
                   >
@@ -545,7 +559,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
                                         .filter((app) => app.id !== "folder")
                                         .slice(
                                           pageIndex * 9,
-                                          (pageIndex + 1) * 9,
+                                          (pageIndex + 1) * 9
                                         )
                                         .map((app) => {
                                           return (
@@ -583,13 +597,13 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
                                     } cursor-pointer`}
                                     onClick={() => handlePageChange(dotIndex)}
                                   />
-                                ),
+                                )
                               )}
                             </div>
                           )}
                         </LiquidGlassCard>
                       </div>,
-                      document.body,
+                      document.body
                     )}
 
                     <LiquidGlassCard
@@ -612,7 +626,15 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
                                 alt={app.name}
                                 className="object-contain"
                                 style={{
-                                  filter: `drop-shadow(0 ${scale > 1.2 ? Math.max(2, baseIconSize * 0.05) : Math.max(1, baseIconSize * 0.03)}px ${scale > 1.2 ? Math.max(4, baseIconSize * 0.1) : Math.max(2, baseIconSize * 0.06)}px rgba(0,0,0,${0.2 + (scale - 1) * 0.15}))`,
+                                  filter: `drop-shadow(0 ${
+                                    scale > 1.2
+                                      ? Math.max(2, baseIconSize * 0.05)
+                                      : Math.max(1, baseIconSize * 0.03)
+                                  }px ${
+                                    scale > 1.2
+                                      ? Math.max(4, baseIconSize * 0.1)
+                                      : Math.max(2, baseIconSize * 0.06)
+                                  }px rgba(0,0,0,${0.2 + (scale - 1) * 0.15}))`,
                                 }}
                               />
                             );
@@ -628,7 +650,15 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
                     height={scaledSize}
                     className="object-contain"
                     style={{
-                      filter: `drop-shadow(0 ${scale > 1.2 ? Math.max(2, baseIconSize * 0.05) : Math.max(1, baseIconSize * 0.03)}px ${scale > 1.2 ? Math.max(4, baseIconSize * 0.1) : Math.max(2, baseIconSize * 0.06)}px rgba(0,0,0,${0.2 + (scale - 1) * 0.15}))`,
+                      filter: `drop-shadow(0 ${
+                        scale > 1.2
+                          ? Math.max(2, baseIconSize * 0.05)
+                          : Math.max(1, baseIconSize * 0.03)
+                      }px ${
+                        scale > 1.2
+                          ? Math.max(4, baseIconSize * 0.1)
+                          : Math.max(2, baseIconSize * 0.06)
+                      }px rgba(0,0,0,${0.2 + (scale - 1) * 0.15}))`,
                     }}
                   />
                 )}

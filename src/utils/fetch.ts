@@ -46,22 +46,30 @@ export class FetchInterceptor {
   }
 
   async responseHandler(response: any) {
-    if (!response.ok) {
-      const errorData = await response
-        .json()
-        .catch(() => ({ message: "请求失败" }));
-      message?.error?.(errorData.message);
-    }
-    const res = await response.json();
-    if (res.code !== codeMap.success) {
-      if (res.code === codeMap.limitsOfAuthority) {
-        localStorage.setItem("token", "");
-        window.history.replaceState({}, "", window.location.pathname);
+    try {
+      if (!response.ok) {
+        const errorData = await response
+          .json()
+          .catch(() => ({ message: "请求失败" }));
+        message?.error?.(errorData.message);
       }
-      message?.warning?.(res.msg);
-    }
+      const res = await response.json();
+      if (res.code !== codeMap.success) {
+        if (res.code === codeMap.limitsOfAuthority) {
+          localStorage.setItem("token", "");
+          window.history.replaceState({}, "", window.location.pathname);
+        }
+        message?.warning?.(res.msg);
+      }
 
-    return Promise.resolve(res);
+      return Promise.resolve(res);
+    } catch (err) {
+      message?.error?.(codeMapMsg[codeMap.serverError]);
+      return Promise.resolve({
+        code: codeMap.serverError,
+        msg: codeMapMsg[codeMap.serverError],
+      });
+    }
   }
 
   errorHandler(error: any) {

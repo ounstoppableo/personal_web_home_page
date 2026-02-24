@@ -2,7 +2,15 @@ import gsap from "gsap";
 import { useEffect, useRef } from "react";
 
 export default function useResizeLogic(props: any) {
-  const { dialogRef, widthTo, heightTo, xTo, yTo } = props;
+  const {
+    dialogRef,
+    widthTo,
+    heightTo,
+    xTo,
+    yTo,
+    setMovingOrResizing,
+    fullscreen,
+  } = props;
   const topResizeOperator = useRef(null);
   const leftResizeOperator = useRef(null);
   const rightResizeOperator = useRef(null);
@@ -33,7 +41,9 @@ export default function useResizeLogic(props: any) {
     y: 0,
   });
   useEffect(() => {
+    if (fullscreen) return;
     const mousedownBasic = (e) => {
+      setMovingOrResizing(true);
       mousedownPosition.current = {
         mouseX: e.x,
         mouseY: e.y,
@@ -85,19 +95,19 @@ export default function useResizeLogic(props: any) {
     rightResizeOperator.current.addEventListener("mousedown", rightMouseDown);
     topLeftResizeOperator.current.addEventListener(
       "mousedown",
-      topLeftMouseDown,
+      topLeftMouseDown
     );
     topRightResizeOperator.current.addEventListener(
       "mousedown",
-      topRightMouseDown,
+      topRightMouseDown
     );
     bottomLeftResizeOperator.current.addEventListener(
       "mousedown",
-      bottomLeftMouseDown,
+      bottomLeftMouseDown
     );
     bottomRightResizeOperator.current.addEventListener(
       "mousedown",
-      bottomRightMouseDown,
+      bottomRightMouseDown
     );
     const mousemoveCb = (e) => {
       if (resizeFlag.current) {
@@ -130,7 +140,7 @@ export default function useResizeLogic(props: any) {
             basicInfo.current.innerHeight
           ) {
             heightTo.current(
-              basicInfo.current.innerHeight - mousedownPosition.current.y,
+              basicInfo.current.innerHeight - mousedownPosition.current.y
             );
           } else {
             heightTo.current(targetHeight);
@@ -160,7 +170,7 @@ export default function useResizeLogic(props: any) {
             basicInfo.current.innerWidth
           ) {
             widthTo.current(
-              basicInfo.current.innerWidth - mousedownPosition.current.x,
+              basicInfo.current.innerWidth - mousedownPosition.current.x
             );
           } else {
             widthTo.current(targetWidth);
@@ -200,6 +210,7 @@ export default function useResizeLogic(props: any) {
     };
     const mouseupCb = () => {
       resizeFlag.current = "";
+      setMovingOrResizing(false);
     };
     window.addEventListener("mousemove", mousemoveCb);
     window.addEventListener("mouseup", mouseupCb);
@@ -209,34 +220,34 @@ export default function useResizeLogic(props: any) {
       topResizeOperator.current?.removeEventListener("mousedown", topMouseDown);
       bottomResizeOperator.current?.removeEventListener(
         "mousedown",
-        bottomMouseDown,
+        bottomMouseDown
       );
       leftResizeOperator.current?.removeEventListener(
         "mousedown",
-        leftMouseDown,
+        leftMouseDown
       );
       rightResizeOperator.current?.removeEventListener(
         "mousedown",
-        rightMouseDown,
+        rightMouseDown
       );
       topLeftResizeOperator.current?.removeEventListener(
         "mousedown",
-        topLeftMouseDown,
+        topLeftMouseDown
       );
       topRightResizeOperator.current?.removeEventListener(
         "mousedown",
-        topRightMouseDown,
+        topRightMouseDown
       );
       bottomLeftResizeOperator.current?.removeEventListener(
         "mousedown",
-        bottomLeftMouseDown,
+        bottomLeftMouseDown
       );
       bottomRightResizeOperator.current?.removeEventListener(
         "mousedown",
-        bottomRightMouseDown,
+        bottomRightMouseDown
       );
     };
-  }, []);
+  }, [fullscreen]);
   return {
     topResizeOperator,
     leftResizeOperator,
