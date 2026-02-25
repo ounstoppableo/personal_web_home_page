@@ -4,6 +4,7 @@ import useMoveLogic from "./hooks/useMoveLogic";
 import useResizeLogic from "./hooks/useResizeLogic";
 import gsap from "gsap";
 import useOperateLogic from "./hooks/useOperateLogic";
+import { useDispatch, useSelector } from "react-redux";
 
 interface Safari_01Props {
   handleOpenChange?: (openStatus: boolean) => any;
@@ -38,13 +39,15 @@ const SafariDialog: React.FC<Safari_01Props> = ({
   const heightTo = useRef<any>(() => {});
   const xTo = useRef<any>(() => {});
   const yTo = useRef<any>(() => {});
-  const [movingOrResizing, setMovingOrResizing] = useState(false);
+  const movingOrResizing = useSelector(
+    (state: any) => state.dialog.movingOrResizing
+  );
   const dialogContentContainerRef = useRef(null);
   const contentRef = useRef(null);
   const refreshContentSize = () => {
     const rect = dialogContentContainerRef.current.getBoundingClientRect();
-    contentRef.current.style.transform = `scale(${rect.width / 1920},${
-      rect.height / 1080
+    contentRef.current.style.transform = `scale(${rect.width / innerWidth},${
+      rect.height / innerHeight
     })`;
   };
   useEffect(() => {
@@ -102,7 +105,6 @@ const SafariDialog: React.FC<Safari_01Props> = ({
     xTo,
     yTo,
     fullscreen,
-    setMovingOrResizing,
   });
   const {
     topResizeOperator,
@@ -119,7 +121,6 @@ const SafariDialog: React.FC<Safari_01Props> = ({
     heightTo,
     xTo,
     yTo,
-    setMovingOrResizing,
     fullscreen,
   });
   return (
@@ -211,7 +212,7 @@ const SafariDialog: React.FC<Safari_01Props> = ({
           className="relative w-full flex-1 rounded-[inherit] rounded-t-none bg-gray-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden"
         >
           <div
-            className="absolute inset-0 overflow-hidden z-0 w-480 h-270 origin-top-left"
+            className="absolute inset-0 overflow-hidden z-0 w-dvw h-dvh origin-top-left"
             ref={contentRef}
           >
             {children}

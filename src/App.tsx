@@ -9,6 +9,8 @@ import solarLunar from "solarLunar";
 import Settiing from "./components/Setting";
 import SafariDialog from "./components/safariDialog";
 import { createRoot } from "react-dom/client";
+import store from "./store/store";
+import { Provider } from "react-redux";
 
 function App() {
   const [background, setBackground] = useState<string>("");
@@ -270,7 +272,7 @@ function App() {
   };
 
   return (
-    <>
+    <Provider store={store}>
       <div className="w-dvw h-dvh relative select-none">
         <div className="absolute right-[8vmin] bottom-[6vmin]">
           <Settiing showSetting={showSetting}></Settiing>
@@ -375,7 +377,7 @@ function App() {
           </div>
         </div>
       </div>
-    </>
+    </Provider>
   );
 }
 

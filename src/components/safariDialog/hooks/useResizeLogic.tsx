@@ -1,16 +1,10 @@
+import { setMovingOrResizing } from "@/store/dialog/dialogSlice";
 import gsap from "gsap";
 import { useEffect, useRef } from "react";
+import { useDispatch } from "react-redux";
 
 export default function useResizeLogic(props: any) {
-  const {
-    dialogRef,
-    widthTo,
-    heightTo,
-    xTo,
-    yTo,
-    setMovingOrResizing,
-    fullscreen,
-  } = props;
+  const { dialogRef, widthTo, heightTo, xTo, yTo, fullscreen } = props;
   const topResizeOperator = useRef(null);
   const leftResizeOperator = useRef(null);
   const rightResizeOperator = useRef(null);
@@ -19,6 +13,7 @@ export default function useResizeLogic(props: any) {
   const bottomLeftResizeOperator = useRef(null);
   const topRightResizeOperator = useRef(null);
   const bottomRightResizeOperator = useRef(null);
+  const diapatch = useDispatch();
 
   const basicInfo = useRef<any>({ innerHeight: 0, innerWidth: 0 });
   const resizeFlag = useRef<
@@ -43,7 +38,7 @@ export default function useResizeLogic(props: any) {
   useEffect(() => {
     if (fullscreen) return;
     const mousedownBasic = (e) => {
-      setMovingOrResizing(true);
+      diapatch(setMovingOrResizing(true));
       mousedownPosition.current = {
         mouseX: e.x,
         mouseY: e.y,
@@ -210,7 +205,7 @@ export default function useResizeLogic(props: any) {
     };
     const mouseupCb = () => {
       resizeFlag.current = "";
-      setMovingOrResizing(false);
+      diapatch(setMovingOrResizing(false));
     };
     window.addEventListener("mousemove", mousemoveCb);
     window.addEventListener("mouseup", mouseupCb);
