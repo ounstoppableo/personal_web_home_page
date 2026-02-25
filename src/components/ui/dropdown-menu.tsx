@@ -42,7 +42,7 @@ const DropdownMenuSubTrigger = React.forwardRef<
     className={cn(
       "flex cursor-default select-none items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none focus:bg-accent data-[state=open]:bg-accent [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
       inset && "pl-8",
-      className,
+      className
     )}
     {...props}
   >
@@ -61,7 +61,7 @@ const DropdownMenuSubContent = React.forwardRef<
     ref={ref}
     className={cn(
       "z-50 min-w-40 overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-lg shadow-black/5 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
-      className,
+      className
     )}
     {...props}
   />
@@ -82,7 +82,7 @@ const DropdownMenuContent = React.forwardRef<
       onCloseAutoFocus,
       ...props
     },
-    ref,
+    ref
   ) => {
     const isCloseFromMouse = React.useRef<boolean>(false);
 
@@ -91,7 +91,7 @@ const DropdownMenuContent = React.forwardRef<
         isCloseFromMouse.current = true;
         onPointerDown?.(e);
       },
-      [onPointerDown],
+      [onPointerDown]
     );
 
     const handlePointerDownOutside = React.useCallback(
@@ -99,7 +99,7 @@ const DropdownMenuContent = React.forwardRef<
         isCloseFromMouse.current = true;
         onPointerDownOutside?.(e);
       },
-      [onPointerDownOutside],
+      [onPointerDownOutside]
     );
 
     const handleCloseAutoFocus = React.useCallback(
@@ -115,7 +115,7 @@ const DropdownMenuContent = React.forwardRef<
         e.preventDefault();
         isCloseFromMouse.current = false;
       },
-      [onCloseAutoFocus],
+      [onCloseAutoFocus]
     );
 
     return (
@@ -125,7 +125,7 @@ const DropdownMenuContent = React.forwardRef<
           sideOffset={sideOffset}
           className={cn(
             "z-50 min-w-40 overflow-hidden rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-lg shadow-black/5 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
-            className,
+            className
           )}
           onPointerDown={handlePointerDown}
           onPointerDownOutside={handlePointerDownOutside}
@@ -136,7 +136,7 @@ const DropdownMenuContent = React.forwardRef<
         />
       </DropdownMenuPrimitive.Portal>
     );
-  },
+  }
 );
 DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;
 
@@ -151,7 +151,7 @@ const DropdownMenuItem = React.forwardRef<
     className={cn(
       "relative flex cursor-default select-none items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
       inset && "pl-8",
-      className,
+      className
     )}
     {...props}
   />
@@ -166,7 +166,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
     ref={ref}
     className={cn(
       "relative flex cursor-default select-none items-center rounded-md py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-      className,
+      className
     )}
     checked={checked}
     {...props}
@@ -190,7 +190,7 @@ const DropdownMenuRadioItem = React.forwardRef<
     ref={ref}
     className={cn(
       "relative flex cursor-default select-none items-center rounded-md py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-      className,
+      className
     )}
     {...props}
   >
@@ -215,7 +215,7 @@ const DropdownMenuLabel = React.forwardRef<
     className={cn(
       "px-2 py-1.5 text-xs font-medium text-muted-foreground",
       inset && "pl-8",
-      className,
+      className
     )}
     {...props}
   />
@@ -242,7 +242,7 @@ const DropdownMenuShortcut = ({
     <span
       className={cn(
         "-me-1 ms-auto inline-flex h-5 max-h-full items-center rounded border border-border bg-background px-1 font-[inherit] text-[0.625rem] font-medium text-muted-foreground/70",
-        className,
+        className
       )}
       {...props}
     />

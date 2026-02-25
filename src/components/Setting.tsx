@@ -22,7 +22,7 @@ import {
   Settings,
   SquareArrowOutUpRight,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { initMessageTool as fetchInitMessageTool } from "@/utils/fetch";
 import { App } from "antd";
@@ -30,10 +30,64 @@ import { Button } from "./ui/button";
 import { closedFloat, seasonSelect } from "@/utils/seasonFloat";
 import { useDispatch, useSelector } from "react-redux";
 import { setAppOpenMethod } from "@/store/setting/settingSlice";
+import gsap from "gsap";
 
 export default function Settiing(props: any) {
   const { showSetting } = props;
   const { message } = App.useApp();
+  const [open, setOpen] = useState(false);
+  const [moveFlag, setMoveFlag] = useState(false);
+  const menuContainerRef = useRef(null);
+  const triggerBtnRef = useRef(null);
+  const triggerBtnRect = useRef({ x: 0, y: 0, width: 0, height: 0 });
+  const xTo = useRef<any>(() => {});
+  const yTo = useRef<any>(() => {});
+  useEffect(() => {
+    triggerBtnRect.current = triggerBtnRef.current.getBoundingClientRect();
+    const macOsDockRect = document
+      .querySelector("#macOsDock")
+      .getBoundingClientRect();
+    gsap.set(menuContainerRef.current, {
+      x:
+        innerWidth -
+        Math.min(innerHeight, innerWidth) * 0.06 -
+        triggerBtnRect.current.width,
+      y:
+        macOsDockRect.y +
+        macOsDockRect.height / 2 -
+        triggerBtnRect.current.height / 2,
+    });
+    xTo.current = gsap.quickTo(menuContainerRef.current, "x", {
+      duration: 0.1,
+    });
+    yTo.current = gsap.quickTo(menuContainerRef.current, "y", {
+      duration: 0.1,
+    });
+    const resizeCb = () => {
+      requestAnimationFrame(() => {
+        triggerBtnRect.current = triggerBtnRef.current.getBoundingClientRect();
+        const macOsDockRect = document
+          .querySelector("#macOsDock")
+          .getBoundingClientRect();
+        gsap.set(menuContainerRef.current, {
+          x:
+            innerWidth -
+            Math.min(innerHeight, innerWidth) * 0.06 -
+            triggerBtnRect.current.width,
+          y:
+            macOsDockRect.y +
+            macOsDockRect.height / 2 -
+            triggerBtnRect.current.height / 2,
+        });
+      });
+    };
+
+    window.addEventListener("resize", resizeCb);
+    return () => {
+      window.removeEventListener("resize", resizeCb);
+    };
+  }, []);
+
   const appOpenMethod = useSelector(
     (state: any) => state.setting.appOpenMethod
   );
@@ -82,23 +136,52 @@ export default function Settiing(props: any) {
     <AnimatePresence>
       {showSetting && (
         <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 8 }}
+          ref={menuContainerRef}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          className="fixed bottom-[6vmin] right-[6vmin] z-[calc(var(--maxZIndex)-1)]"
+          className="fixed top-0 left-0 z-[calc(var(--maxZIndex)+1)]"
         >
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
+          <DropdownMenu modal={false} open={open} onOpenChange={setOpen}>
+            <DropdownMenuTrigger
+              asChild
+              style={{ touchAction: "none" }}
+              onPointerDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setMoveFlag(true);
+                setOpen(false);
+                triggerBtnRect.current =
+                  triggerBtnRef.current.getBoundingClientRect();
+                e.currentTarget.setPointerCapture(e.pointerId);
+              }}
+              onPointerUp={() => {
+                setMoveFlag(false);
+              }}
+              onPointerMove={(e) => {
+                if (moveFlag) {
+                  xTo.current(e.clientX - triggerBtnRect.current.width / 2);
+                  yTo.current(e.clientY - triggerBtnRect.current.height / 2);
+                }
+              }}
+            >
               <Button
                 variant="outline"
                 size="icon"
                 className="rounded-full cursor-pointer"
+                ref={triggerBtnRef}
+                onClick={() => {
+                  setOpen(!open);
+                }}
               >
                 <Settings className="size-5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-48 z-[calc(var(--maxZIndex)-1)]">
+            <DropdownMenuContent
+              side={"top"}
+              className="w-48 z-[calc(var(--maxZIndex)+1)]"
+            >
               <DropdownMenuItem
                 className="flex items-center gap-2 rounded-lg py-2 px-2 hover:bg-background/50"
                 onClick={handleOpenFloatEffect}
@@ -113,7 +196,7 @@ export default function Settiing(props: any) {
                   <span className="flex-1">应用模式</span>
                 </DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
-                  <DropdownMenuSubContent className="w-44 rounded-lg border shadow-sm p-1 z-[var(--maxZIndex)]">
+                  <DropdownMenuSubContent className="w-44 rounded-lg border shadow-sm p-1 z-[calc(var(--maxZIndex)+1)]">
                     <DropdownMenuRadioGroup value="light">
                       <DropdownMenuRadioItem
                         value="light"

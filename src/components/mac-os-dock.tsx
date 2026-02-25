@@ -496,6 +496,7 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           onClick={(e) => e.stopPropagation()}
+          id="macOsDock"
         >
           <div
             className="relative"
@@ -569,7 +570,7 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
                               ref={pageContainer}
                             >
                               {folderApps.length === 0 ? (
-                                <div className="text-[3vmin] leading-[3vmin] w-full h-full flex justify-center items-center text-muted">
+                                <div className="text-[2.5vmin] leading-[2.5vmin] w-full h-full flex justify-center items-center text-muted">
                                   暂无数据
                                 </div>
                               ) : (
