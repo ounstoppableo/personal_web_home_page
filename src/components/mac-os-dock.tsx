@@ -281,29 +281,32 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
     }));
     const appContainerRef = useRef<HTMLDivElement>(null);
     const appContainerFixedAnchorRef = useRef<HTMLDivElement>(null);
-    const [folderContainerPosition, setFolderContainerPosition] = useState<{
+    const [folderContainerPosition, _setFolderContainerPosition] = useState<{
       x: number;
       y: number;
     } | null>({ x: 0, y: 0 });
+    const folderContainerPositionSync = useRef(folderContainerPosition);
+    const setFolderContainerPosition = (value) => {
+      folderContainerPositionSync.current = value;
+      _setFolderContainerPosition(value);
+    };
     const { contextSafe: contextSafeForFolderContainer } = useGSAP({
       scope: appContainerRef.current,
     });
     const updateAppContainerPosition = () => {
-      requestAnimationFrame(() => {
-        const appContainerRect =
-          appContainerFixedAnchorRef.current.getBoundingClientRect();
-        if (appContainerRect.width + appContainerRect.left > innerWidth) {
-          setFolderContainerPosition({
-            x: innerWidth - appContainerRect.width - 8,
-            y: appContainerRect.top,
-          });
-        } else {
-          setFolderContainerPosition({
-            x: appContainerRect.left,
-            y: appContainerRect.top,
-          });
-        }
-      });
+      const appContainerRect =
+        appContainerFixedAnchorRef.current.getBoundingClientRect();
+      if (appContainerRect.width + appContainerRect.left > innerWidth) {
+        setFolderContainerPosition({
+          x: innerWidth - appContainerRect.width - 8,
+          y: appContainerRect.top,
+        });
+      } else {
+        setFolderContainerPosition({
+          x: appContainerRect.left,
+          y: appContainerRect.top,
+        });
+      }
     };
 
     const draggableRef = useRef<any>([]);
@@ -311,6 +314,7 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
       draggableRef.current.forEach((draggableInst) => draggableInst.kill());
       if (openAppsRef.current.includes("folder")) {
         setCurrentFolderPage(0);
+        updateAppContainerPosition();
         gsap.set(draggableContainer.current, {
           x: 0,
         });
@@ -320,11 +324,16 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
           {
             scale: 0,
             opacity: 0,
+            y: folderContainerPositionSync.current.y,
             duration: 0.4,
           }
         );
       } else {
         updateAppContainerPosition();
+        gsap.set(appContainerRef.current, {
+          x: folderContainerPositionSync.current.x,
+          y: folderContainerPositionSync.current.y,
+        });
         gsap.fromTo(
           appContainerRef.current,
           { scale: 0, opacity: 0 },
@@ -535,11 +544,7 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
                       {createPortal(
                         <div
                           ref={appContainerRef}
-                          className="appContainer absolute w-[40vmin] h-[40vmin] origin-[50%_100%] opacity-0 scale-0 z-[var(--maxZIndex)]"
-                          style={{
-                            top: folderContainerPosition.y + "px",
-                            left: folderContainerPosition.x + "px",
-                          }}
+                          className="appContainer absolute w-[40vmin] h-[40vmin] top-0 left-0 origin-[50%_100%] opacity-0 scale-0 z-[var(--maxZIndex)]"
                           onMouseMove={(e) => e.stopPropagation()}
                           onMouseEnter={handleMouseLeave}
                           onClick={(e) => e.stopPropagation()}
