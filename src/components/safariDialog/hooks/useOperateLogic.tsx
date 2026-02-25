@@ -47,11 +47,11 @@ export default function useOperateLogic(props: any) {
     scope: dialogRef.current,
     dependencies: [minimize],
   });
-  const handleMinimize = contextSafe((_minimize?) => {
+  const handleMinimize = contextSafe(async (_minimize?) => {
     const targetRect = document
       .querySelector(minimizeTargetSelector)
       ?.getBoundingClientRect?.();
-    if (fullscreen) handleFullscreen();
+    if (fullscreen) await handleFullscreen();
     const _handleMinimize = (minimize) => {
       if (minimize) {
         if (targetRect) {
@@ -151,18 +151,26 @@ export default function useOperateLogic(props: any) {
     }
   });
 
-  const handleFullscreen = () => {
+  const handleFullscreen = async () => {
     if (fullscreen) {
-      widthTo.current(originalInfo.current.width);
-      heightTo.current(originalInfo.current.height);
-      xTo.current(originalInfo.current.x);
-      yTo.current(originalInfo.current.y);
+      await gsap.to(dialogRef.current, {
+        width: originalInfo.current.width,
+        height: originalInfo.current.height,
+        x: originalInfo.current.x,
+        y: originalInfo.current.y,
+        duration: 0.1,
+        onComplete: refreshContentSize,
+      });
       setFullscreen(false);
     } else {
-      widthTo.current(innerWidth);
-      heightTo.current(innerHeight);
-      xTo.current(0);
-      yTo.current(0);
+      await gsap.to(dialogRef.current, {
+        width: innerWidth,
+        height: innerHeight,
+        x: 0,
+        y: 0,
+        duration: 0.1,
+        onComplete: refreshContentSize,
+      });
       setFullscreen(true);
     }
   };
