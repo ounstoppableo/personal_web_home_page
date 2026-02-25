@@ -60,61 +60,40 @@ const SafariDialog: React.FC<Safari_01Props> = ({
       rect.height / innerHeight
     })`;
   };
-  useEffect(() => {
-    gsap.set(dialogRef.current, {
-      x: innerWidth / 4,
-      y: innerHeight / 4,
-    });
+  const refreshOriginalInfo = () => {
     originalInfo.current = {
       width: +gsap.getProperty(dialogRef.current, "width"),
       height: +gsap.getProperty(dialogRef.current, "height"),
       x: +gsap.getProperty(dialogRef.current, "x"),
       y: +gsap.getProperty(dialogRef.current, "y"),
     };
-    widthTo.current = gsap.quickTo(dialogRef.current, "width", {
-      duration: 0.1,
-      onComplete: refreshContentSize,
-    });
-    heightTo.current = gsap.quickTo(dialogRef.current, "height", {
-      duration: 0.1,
-      onComplete: refreshContentSize,
-    });
-    xTo.current = gsap.quickTo(dialogRef.current, "x", { duration: 0.1 });
-    yTo.current = gsap.quickTo(dialogRef.current, "y", { duration: 0.1 });
-    refreshContentSize();
-    const cb = () => {
-      requestAnimationFrame(() => {
-        const dialogRect = dialogRef.current.getBoundingClientRect();
-        widthTo.current(dialogRect.width);
-        heightTo.current(dialogRect.height);
-      });
-    };
+  };
 
-    window.addEventListener("resize", cb);
-    return () => {
-      window.removeEventListener("resize", cb);
-      gsap.killTweensOf(dialogRef.current);
-    };
-  }, []);
-
-  const { open, fullscreen, handleClose, handleMinimize, handleFullscreen } =
-    useOperateLogic({
-      handleOpenChange,
-      handleMinimizeChange,
-      handleFullscreenChange,
-      widthTo,
-      heightTo,
-      xTo,
-      yTo,
-      dialogRef,
-      minimizeTargetSelector,
-      onClose,
-      defaultOpen,
-      defaultMinimize,
-      defaultFullscreen,
-      originalInfo,
-      refreshContentSize,
-    });
+  const {
+    open,
+    fullscreen,
+    handleClose,
+    handleMinimize,
+    handleFullscreen,
+    minimizeSync,
+  } = useOperateLogic({
+    handleOpenChange,
+    handleMinimizeChange,
+    handleFullscreenChange,
+    widthTo,
+    heightTo,
+    xTo,
+    yTo,
+    dialogRef,
+    minimizeTargetSelector,
+    onClose,
+    defaultOpen,
+    defaultMinimize,
+    defaultFullscreen,
+    originalInfo,
+    refreshContentSize,
+    refreshOriginalInfo,
+  });
   useMoveLogic({
     dialogRef,
     dialogHeaderRef,
@@ -143,6 +122,52 @@ const SafariDialog: React.FC<Safari_01Props> = ({
     fullscreen,
     originalInfo,
   });
+
+  useEffect(() => {
+    gsap.set(dialogRef.current, {
+      x: innerWidth / 4,
+      y: innerHeight / 4,
+    });
+    refreshOriginalInfo();
+    widthTo.current = gsap.quickTo(dialogRef.current, "width", {
+      duration: 0.1,
+      onComplete: () => {
+        refreshContentSize();
+        refreshOriginalInfo();
+      },
+    });
+    heightTo.current = gsap.quickTo(dialogRef.current, "height", {
+      duration: 0.1,
+      onComplete: () => {
+        refreshContentSize();
+        refreshOriginalInfo();
+      },
+    });
+    xTo.current = gsap.quickTo(dialogRef.current, "x", {
+      duration: 0.1,
+      onComplete: refreshOriginalInfo,
+    });
+    yTo.current = gsap.quickTo(dialogRef.current, "y", {
+      duration: 0.1,
+      onComplete: refreshOriginalInfo,
+    });
+    refreshContentSize();
+    const cb = () => {
+      requestAnimationFrame(() => {
+        if (minimizeSync.current) return;
+        const dialogRect = dialogRef.current.getBoundingClientRect();
+        widthTo.current(dialogRect.width);
+        heightTo.current(dialogRect.height);
+        refreshOriginalInfo();
+      });
+    };
+
+    window.addEventListener("resize", cb);
+    return () => {
+      window.removeEventListener("resize", cb);
+      gsap.killTweensOf(dialogRef.current);
+    };
+  }, []);
   return (
     <>
       <div

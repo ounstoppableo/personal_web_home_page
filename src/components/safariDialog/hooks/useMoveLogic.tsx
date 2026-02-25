@@ -68,14 +68,6 @@ export default function useMoveLogic(props: any) {
     [fullscreen]
   );
   const mouseupCb = useCallback(() => {
-    if (moveFlag.current) {
-      originalInfo.current = {
-        width: +gsap.getProperty(dialogRef.current, "width"),
-        height: +gsap.getProperty(dialogRef.current, "height"),
-        x: +gsap.getProperty(dialogRef.current, "x"),
-        y: +gsap.getProperty(dialogRef.current, "y"),
-      };
-    }
     moveFlag.current = false;
     dispatch(setMovingOrResizing(false));
   }, [fullscreen]);

@@ -435,6 +435,13 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
           handleFolderClick();
           _handleAppClick("folder");
         }
+        requestAnimationFrame(() => {
+          updateAppContainerPosition();
+          gsap.set(appContainerRef.current, {
+            x: folderContainerPositionSync.current.x,
+            y: folderContainerPositionSync.current.y,
+          });
+        });
       };
 
       window.addEventListener("resize", handleResize);
@@ -647,7 +654,7 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
                         draggable={false}
                         className="z-10 flex items-start relative overflow-hidden"
                       >
-                        <div className="w-full h-full grid grid-cols-3 p-[1vmin] gap-[.25vmin]">
+                        <div className="w-full h-full grid grid-cols-3 p-1.25 gap-px">
                           {folderApps
                             .filter((app) => app.id !== "folder")
                             .slice(0, 9)
@@ -658,19 +665,6 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
                                   src={app.icon}
                                   alt={app.name}
                                   className="object-contain"
-                                  style={{
-                                    filter: `drop-shadow(0 ${
-                                      scale > 1.2
-                                        ? Math.max(2, baseIconSize * 0.05)
-                                        : Math.max(1, baseIconSize * 0.03)
-                                    }px ${
-                                      scale > 1.2
-                                        ? Math.max(4, baseIconSize * 0.1)
-                                        : Math.max(2, baseIconSize * 0.06)
-                                    }px rgba(0,0,0,${
-                                      0.2 + (scale - 1) * 0.15
-                                    }))`,
-                                  }}
                                 />
                               );
                             })}

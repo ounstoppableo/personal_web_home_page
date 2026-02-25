@@ -24,9 +24,14 @@ export default function useOperateLogic(props: any) {
   const [open, setOpen] = useState(
     typeof defaultOpen === "boolean" ? defaultOpen : false
   );
-  const [minimize, setMinimize] = useState(
+  const [minimize, _setMinimize] = useState(
     typeof defaultMinimize === "boolean" ? defaultMinimize : false
   );
+  const minimizeSync = useRef(minimize);
+  const setMinimize = (value) => {
+    _setMinimize(value);
+    minimizeSync.current = value;
+  };
   const [fullscreen, setFullscreen] = useState(
     typeof defaultFullscreen === "boolean" ? defaultFullscreen : false
   );
@@ -113,6 +118,11 @@ export default function useOperateLogic(props: any) {
                 {
                   scaleX: 0,
                   scaleY: 0,
+                  x:
+                    targetRect.x +
+                    targetRect.width / 2 -
+                    originalInfo.current.width / 2,
+                  y: targetRect.y - originalInfo.current.height / 2,
                   duration: 0.3,
                 },
                 {
@@ -183,5 +193,6 @@ export default function useOperateLogic(props: any) {
     handleClose,
     handleMinimize,
     handleFullscreen,
+    minimizeSync,
   };
 }
