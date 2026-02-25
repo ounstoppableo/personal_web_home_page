@@ -33,6 +33,7 @@ export default function useOperateLogic(props: any) {
   const handleClose = () => {
     setOpen(false);
     onClose?.();
+    handleOpenChange?.(false);
   };
   useEffect(() => {
     setOpen(typeof defaultOpen === "boolean" ? defaultOpen : false);
@@ -69,10 +70,7 @@ export default function useOperateLogic(props: any) {
                 targetRect.x +
                 targetRect.width / 2 -
                 originalInfo.current.width / 2,
-              y:
-                targetRect.y +
-                targetRect.height / 2 -
-                originalInfo.current.height / 2,
+              y: targetRect.y - originalInfo.current.height / 2,
               duration: 0.3,
               ease: "power2.out",
             }
@@ -148,6 +146,7 @@ export default function useOperateLogic(props: any) {
     } else {
       setMinimize(!minimize);
       _handleMinimize(!minimize);
+      handleMinimizeChange?.(!minimize);
     }
   });
 
@@ -162,6 +161,7 @@ export default function useOperateLogic(props: any) {
         onComplete: refreshContentSize,
       });
       setFullscreen(false);
+      handleFullscreenChange?.(false);
     } else {
       await gsap.to(dialogRef.current, {
         width: innerWidth,
@@ -172,23 +172,10 @@ export default function useOperateLogic(props: any) {
         onComplete: refreshContentSize,
       });
       setFullscreen(true);
+      handleFullscreenChange?.(true);
     }
   };
-  useEffect(() => {
-    if (open !== defaultOpen) {
-      handleOpenChange?.(open);
-    }
-  }, [open]);
-  useEffect(() => {
-    if (minimize !== defaultMinimize) {
-      handleMinimizeChange?.(minimize);
-    }
-  }, [minimize]);
-  useEffect(() => {
-    if (fullscreen !== defaultFullscreen) {
-      handleFullscreenChange?.(fullscreen);
-    }
-  }, [fullscreen]);
+
   return {
     open,
     minimize,

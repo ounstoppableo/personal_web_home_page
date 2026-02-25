@@ -196,17 +196,18 @@ function App() {
       icon: "/github.webp",
     },
   ];
+  const macOsDockRef = useRef(null);
 
   useEffect(() => {
     request("/api/media/randomByTag", {
       method: "post",
       body: {
         count: 1,
-        tags: ["Background"],
+        tags: ["bg"],
       },
     }).then((res: CommonResponse) => {
       if (res.code === codeMap.success) {
-        setBackground(res.data[0].sourcePath);
+        setBackground(res.data[0]?.sourcePath);
       }
     });
   }, []);
@@ -326,7 +327,11 @@ function App() {
             </div>
           )}
           <div className="dialogBottomBoundary flex flex-col justify-center items-center gap-[2vmin] select-none z-[var(--maxZIndex)]">
-            <MacOSDock initApps={initApps} onAppClick={onAppClick} />
+            <MacOSDock
+              initApps={initApps}
+              onAppClick={onAppClick}
+              ref={macOsDockRef}
+            />
             <div className="text-center">
               <p className="text-[2vmin] text-white">
                 © 2026 Unstoppable840. All rights reserved.
@@ -356,17 +361,7 @@ function App() {
                   ]);
                 }}
                 handleOpenChange={(openStatus) => {
-                  const index = dialogListSync.current.findIndex(
-                    (_item) => _item.id === item.id
-                  );
-                  setDialogList([
-                    ...dialogListSync.current.slice(0, index),
-                    { ...dialogListSync.current[index], open: openStatus },
-                    ...dialogListSync.current.slice(
-                      index + 1,
-                      dialogListSync.current.length
-                    ),
-                  ]);
+                  macOsDockRef.current.handleAppClick(item.id, false);
                 }}
                 handleMinimizeChange={(minimizeStatus) => {
                   const index = dialogListSync.current.findIndex(
@@ -383,6 +378,7 @@ function App() {
                       dialogListSync.current.length
                     ),
                   ]);
+                  macOsDockRef.current.handleAppClick(item.id);
                 }}
                 zIndex={item.zIndex}
                 key={item.id}

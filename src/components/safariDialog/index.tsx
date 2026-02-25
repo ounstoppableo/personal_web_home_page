@@ -205,14 +205,17 @@ const SafariDialog: React.FC<Safari_01Props> = ({
           <div className="flex items-center space-x-2">
             <span
               className="operator w-3 h-3 bg-red-400 rounded-full cursor-pointer"
+              onMouseDown={(e) => e.stopPropagation()}
               onClick={handleClose}
             />
             <span
               className="operator w-3 h-3 bg-yellow-400 rounded-full cursor-pointer"
+              onMouseDown={(e) => e.stopPropagation()}
               onClick={handleMinimize}
             />
             <span
               className="operator w-3 h-3 bg-green-500 rounded-full cursor-pointer"
+              onMouseDown={(e) => e.stopPropagation()}
               onClick={handleFullscreen}
             />
           </div>
