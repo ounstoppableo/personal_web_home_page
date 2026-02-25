@@ -4,7 +4,8 @@ import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 
 export default function useResizeLogic(props: any) {
-  const { dialogRef, widthTo, heightTo, xTo, yTo, fullscreen } = props;
+  const { dialogRef, widthTo, heightTo, xTo, yTo, fullscreen, originalInfo } =
+    props;
   const topResizeOperator = useRef(null);
   const leftResizeOperator = useRef(null);
   const rightResizeOperator = useRef(null);
@@ -204,6 +205,14 @@ export default function useResizeLogic(props: any) {
       }
     };
     const mouseupCb = () => {
+      if (resizeFlag.current) {
+        originalInfo.current = {
+          width: +gsap.getProperty(dialogRef.current, "width"),
+          height: +gsap.getProperty(dialogRef.current, "height"),
+          x: +gsap.getProperty(dialogRef.current, "x"),
+          y: +gsap.getProperty(dialogRef.current, "y"),
+        };
+      }
       resizeFlag.current = "";
       diapatch(setMovingOrResizing(false));
     };

@@ -476,6 +476,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
             return (
               <div
                 key={app.id}
+                id={app.id}
                 ref={(el) => {
                   iconRefs.current[index] = el;
                 }}
@@ -514,7 +515,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
                     {createPortal(
                       <div
                         ref={appContainerRef}
-                        className="appContainer absolute w-[40vmin] h-[40vmin] origin-[50%_100%] opacity-0 scale-0"
+                        className="appContainer absolute w-[40vmin] h-[40vmin] origin-[50%_100%] opacity-0 scale-0 z-[var(--maxZIndex)]"
                         style={{
                           top: folderContainerPosition.y + "px",
                           left: folderContainerPosition.x + "px",
@@ -565,6 +566,8 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
                                           return (
                                             <div
                                               key={app.id}
+                                              id={app.id}
+                                              onClick={() => onAppClick(app)}
                                               className="cursor-pointer group hover:scale-110 transition-transform duration-200 flex flex-col justify-center items-center overflow-hidden"
                                             >
                                               <img

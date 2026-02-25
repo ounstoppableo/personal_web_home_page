@@ -254,6 +254,7 @@ function App() {
         })),
         {
           ...app,
+          minimizeTargetSelector: `#${app.id}`,
           open: true,
           minimize: false,
           zIndex: 2,
@@ -386,6 +387,7 @@ function App() {
                 zIndex={item.zIndex}
                 key={item.id}
                 title={item.name}
+                minimizeTargetSelector={item.minimizeTargetSelector}
                 onClose={() => {
                   setDialogList(
                     dialogList.filter((_item) => _item.id !== item.id)

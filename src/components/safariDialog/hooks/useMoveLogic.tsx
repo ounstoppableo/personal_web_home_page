@@ -4,7 +4,8 @@ import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 
 export default function useMoveLogic(props: any) {
-  const { dialogRef, dialogHeaderRef, xTo, yTo, fullscreen } = props;
+  const { dialogRef, dialogHeaderRef, xTo, yTo, fullscreen, originalInfo } =
+    props;
   const moveFlag = useRef<boolean>(false);
   const mousedownPosition = useRef({ mouseX: 0, mouseY: 0, x: 0, y: 0 });
   const boundary = useRef({ top: 0, left: 0, right: 0, bottom: 0 });
@@ -14,6 +15,7 @@ export default function useMoveLogic(props: any) {
   useEffect(() => {
     dialogRect.current = dialogRef.current.getBoundingClientRect();
     const mousedownCb = (e: any) => {
+      if (e.target.closest(".operator")) return;
       dispatch(setMovingOrResizing(true));
       moveFlag.current = true;
       mousedownPosition.current = {
@@ -62,6 +64,14 @@ export default function useMoveLogic(props: any) {
       }
     };
     const mouseupCb = () => {
+      if (moveFlag.current) {
+        originalInfo.current = {
+          width: +gsap.getProperty(dialogRef.current, "width"),
+          height: +gsap.getProperty(dialogRef.current, "height"),
+          x: +gsap.getProperty(dialogRef.current, "x"),
+          y: +gsap.getProperty(dialogRef.current, "y"),
+        };
+      }
       moveFlag.current = false;
       dispatch(setMovingOrResizing(false));
     };

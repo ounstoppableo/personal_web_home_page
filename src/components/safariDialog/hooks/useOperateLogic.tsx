@@ -1,3 +1,4 @@
+import { checkIsNone } from "@/utils/convention";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useEffect, useRef, useState } from "react";
@@ -12,11 +13,13 @@ export default function useOperateLogic(props: any) {
     xTo,
     yTo,
     dialogRef,
-    minimizeTarget,
+    minimizeTargetSelector,
     onClose,
     defaultOpen,
     defaultMinimize,
     defaultFullscreen,
+    originalInfo,
+    refreshContentSize,
   } = props;
   const [open, setOpen] = useState(
     typeof defaultOpen === "boolean" ? defaultOpen : false
@@ -27,12 +30,6 @@ export default function useOperateLogic(props: any) {
   const [fullscreen, setFullscreen] = useState(
     typeof defaultFullscreen === "boolean" ? defaultFullscreen : false
   );
-  const originalInfo = useRef({
-    width: 0,
-    height: 0,
-    x: 0,
-    y: 0,
-  });
   const handleClose = () => {
     setOpen(false);
     onClose?.();
@@ -51,10 +48,35 @@ export default function useOperateLogic(props: any) {
     dependencies: [minimize],
   });
   const handleMinimize = contextSafe((_minimize?) => {
-    const targetRect = minimizeTarget?.current?.getBoundingClientRect();
+    const targetRect = document
+      .querySelector(minimizeTargetSelector)
+      ?.getBoundingClientRect?.();
+    if (fullscreen) handleFullscreen();
     const _handleMinimize = (minimize) => {
       if (minimize) {
         if (targetRect) {
+          gsap.fromTo(
+            dialogRef.current,
+            {
+              scaleX: 1,
+              scaleY: 1,
+              duration: 0.3,
+            },
+            {
+              scaleX: 0,
+              scaleY: 0,
+              x:
+                targetRect.x +
+                targetRect.width / 2 -
+                originalInfo.current.width / 2,
+              y:
+                targetRect.y +
+                targetRect.height / 2 -
+                originalInfo.current.height / 2,
+              duration: 0.3,
+              ease: "power2.out",
+            }
+          );
         } else {
           gsap.fromTo(
             dialogRef.current,
@@ -72,6 +94,38 @@ export default function useOperateLogic(props: any) {
         }
       } else {
         if (targetRect) {
+          checkIsNone(originalInfo.current.x) ||
+          checkIsNone(originalInfo.current.y)
+            ? gsap.fromTo(
+                dialogRef.current,
+                {
+                  scaleX: 0,
+                  scaleY: 0,
+                  duration: 0.3,
+                },
+                {
+                  scaleX: 1,
+                  scaleY: 1,
+                  duration: 0.3,
+                  onComplete: refreshContentSize,
+                }
+              )
+            : gsap.fromTo(
+                dialogRef.current,
+                {
+                  scaleX: 0,
+                  scaleY: 0,
+                  duration: 0.3,
+                },
+                {
+                  scaleX: 1,
+                  scaleY: 1,
+                  x: originalInfo.current.x,
+                  y: originalInfo.current.y,
+                  duration: 0.3,
+                  onComplete: refreshContentSize,
+                }
+              );
         } else {
           gsap.fromTo(
             dialogRef.current,
@@ -105,12 +159,6 @@ export default function useOperateLogic(props: any) {
       yTo.current(originalInfo.current.y);
       setFullscreen(false);
     } else {
-      originalInfo.current = {
-        width: +gsap.getProperty(dialogRef.current, "width"),
-        height: +gsap.getProperty(dialogRef.current, "height"),
-        x: +gsap.getProperty(dialogRef.current, "x"),
-        y: +gsap.getProperty(dialogRef.current, "y"),
-      };
       widthTo.current(innerWidth);
       heightTo.current(innerHeight);
       xTo.current(0);

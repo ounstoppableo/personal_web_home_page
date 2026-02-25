@@ -12,7 +12,7 @@ interface Safari_01Props {
   handleFullscreenChange?: (fullscreenStatus: boolean) => any;
   handleHeaderMouseDownCb?: () => any;
   className?: string;
-  minimizeTarget?: any;
+  minimizeTargetSelector?: string;
   onClose?: any;
   defaultOpen?: boolean;
   defaultMinimize?: boolean;
@@ -28,7 +28,7 @@ const SafariDialog: React.FC<Safari_01Props> = ({
   handleFullscreenChange,
   handleHeaderMouseDownCb,
   className,
-  minimizeTarget,
+  minimizeTargetSelector,
   onClose,
   defaultOpen,
   defaultMinimize,
@@ -43,6 +43,12 @@ const SafariDialog: React.FC<Safari_01Props> = ({
   const heightTo = useRef<any>(() => {});
   const xTo = useRef<any>(() => {});
   const yTo = useRef<any>(() => {});
+  const originalInfo = useRef({
+    width: undefined,
+    height: undefined,
+    x: undefined,
+    y: undefined,
+  });
   const movingOrResizing = useSelector(
     (state: any) => state.dialog.movingOrResizing
   );
@@ -59,6 +65,12 @@ const SafariDialog: React.FC<Safari_01Props> = ({
       x: innerWidth / 4,
       y: innerHeight / 4,
     });
+    originalInfo.current = {
+      width: +gsap.getProperty(dialogRef.current, "width"),
+      height: +gsap.getProperty(dialogRef.current, "height"),
+      x: +gsap.getProperty(dialogRef.current, "x"),
+      y: +gsap.getProperty(dialogRef.current, "y"),
+    };
     widthTo.current = gsap.quickTo(dialogRef.current, "width", {
       duration: 0.1,
       onComplete: refreshContentSize,
@@ -95,11 +107,13 @@ const SafariDialog: React.FC<Safari_01Props> = ({
       xTo,
       yTo,
       dialogRef,
-      minimizeTarget,
+      minimizeTargetSelector,
       onClose,
       defaultOpen,
       defaultMinimize,
       defaultFullscreen,
+      originalInfo,
+      refreshContentSize,
     });
   useMoveLogic({
     dialogRef,
@@ -109,6 +123,7 @@ const SafariDialog: React.FC<Safari_01Props> = ({
     xTo,
     yTo,
     fullscreen,
+    originalInfo,
   });
   const {
     topResizeOperator,
@@ -126,6 +141,7 @@ const SafariDialog: React.FC<Safari_01Props> = ({
     xTo,
     yTo,
     fullscreen,
+    originalInfo,
   });
   return (
     <>
@@ -188,15 +204,15 @@ const SafariDialog: React.FC<Safari_01Props> = ({
         >
           <div className="flex items-center space-x-2">
             <span
-              className="w-3 h-3 bg-red-400 rounded-full cursor-pointer"
+              className="operator w-3 h-3 bg-red-400 rounded-full cursor-pointer"
               onClick={handleClose}
             />
             <span
-              className="w-3 h-3 bg-yellow-400 rounded-full cursor-pointer"
+              className="operator w-3 h-3 bg-yellow-400 rounded-full cursor-pointer"
               onClick={handleMinimize}
             />
             <span
-              className="w-3 h-3 bg-green-500 rounded-full cursor-pointer"
+              className="operator w-3 h-3 bg-green-500 rounded-full cursor-pointer"
               onClick={handleFullscreen}
             />
           </div>
@@ -213,7 +229,7 @@ const SafariDialog: React.FC<Safari_01Props> = ({
               {title}
             </div>
           </div>
-          <div className="w-4 h-4" /> {/* Placeholder for right side icons */}
+          <div className="w-4 h-4" />
         </div>
         <div
           ref={dialogContentContainerRef}
