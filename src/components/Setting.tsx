@@ -3,25 +3,47 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuPortal,
+  DropdownMenuSubContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
-import { Bubbles, Check, Settings } from "lucide-react";
+import {
+  Blocks,
+  Bubbles,
+  Check,
+  IndianRupee,
+  Menu,
+  Outdent,
+  PanelsTopLeft,
+  Settings,
+  SquareArrowOutUpRight,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { initMessageTool as fetchInitMessageTool } from "@/utils/fetch";
 import { App } from "antd";
 import { Button } from "./ui/button";
 import { closedFloat, seasonSelect } from "@/utils/seasonFloat";
+import { useDispatch, useSelector } from "react-redux";
+import { setAppOpenMethod } from "@/store/setting/settingSlice";
 
 export default function Settiing(props: any) {
   const { showSetting } = props;
   const { message } = App.useApp();
+  const appOpenMethod = useSelector(
+    (state: any) => state.setting.appOpenMethod
+  );
+  const dispatch = useDispatch();
   useEffect(() => {
     fetchInitMessageTool(message);
   }, []);
 
   const [floatOpenStatus, setFloatOpenStatus] = useState<boolean>(
-    localStorage.getItem("floatClose") ? false : true,
+    localStorage.getItem("floatClose") ? false : true
   );
 
   const checkSeason = () => {
@@ -85,6 +107,48 @@ export default function Settiing(props: any) {
                 <div className="flex-1">落花效果</div>
                 {floatOpenStatus && <Check className="h-4 w-4"></Check>}
               </DropdownMenuItem>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="flex items-center gap-2 rounded-lg py-2 px-2 hover:bg-background/50">
+                  <Blocks className="w-4 h-4" />
+                  <span className="flex-1">应用模式</span>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent className="w-44 rounded-lg border shadow-sm p-1 z-[var(--maxZIndex)]">
+                    <DropdownMenuRadioGroup value="light">
+                      <DropdownMenuRadioItem
+                        value="light"
+                        className="flex items-center gap-2 py-1 px-2 rounded"
+                        onClick={() => {
+                          dispatch(setAppOpenMethod("inner"));
+                        }}
+                      >
+                        <PanelsTopLeft className="w-4 h-4" />
+                        <span className="flex-1">内部打开</span>
+                        {appOpenMethod === "inner" ? (
+                          <Check className="h-4 w-4"></Check>
+                        ) : (
+                          <></>
+                        )}
+                      </DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem
+                        value="dark"
+                        className="flex items-center gap-2 py-1 px-2 rounded"
+                        onClick={() => {
+                          dispatch(setAppOpenMethod("outer"));
+                        }}
+                      >
+                        <SquareArrowOutUpRight className="w-4 h-4" />
+                        <span className="flex-1">外部打开</span>
+                        {appOpenMethod === "outer" ? (
+                          <Check className="h-4 w-4"></Check>
+                        ) : (
+                          <></>
+                        )}
+                      </DropdownMenuRadioItem>
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
             </DropdownMenuContent>
           </DropdownMenu>
         </motion.div>
