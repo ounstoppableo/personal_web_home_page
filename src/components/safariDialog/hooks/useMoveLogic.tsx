@@ -1,6 +1,6 @@
 import { setMovingOrResizing } from "@/store/dialog/dialogSlice";
 import gsap from "gsap";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 
 export default function useMoveLogic(props: any) {
@@ -11,10 +11,9 @@ export default function useMoveLogic(props: any) {
   const boundary = useRef({ top: 0, left: 0, right: 0, bottom: 0 });
   const dialogRect = useRef<any>({ width: 0, height: 0 });
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    dialogRect.current = dialogRef.current.getBoundingClientRect();
-    const mousedownCb = (e: any) => {
+  const mousedownCb = useCallback(
+    (e: any) => {
+      if (fullscreen) return;
       if (e.target.closest(".operator")) return;
       dispatch(setMovingOrResizing(true));
       moveFlag.current = true;
@@ -29,8 +28,11 @@ export default function useMoveLogic(props: any) {
         document.querySelector(".dialogBottomBoundary")?.getBoundingClientRect()
           .y - dialogHeaderRef.current.getBoundingClientRect().height || 0;
       boundary.current.right = innerWidth - dialogRect.current.width;
-    };
-    const mousemoveCb = (e: any) => {
+    },
+    [fullscreen]
+  );
+  const mousemoveCb = useCallback(
+    (e: any) => {
       if (fullscreen) return;
       if (moveFlag.current) {
         const targetX =
@@ -62,20 +64,23 @@ export default function useMoveLogic(props: any) {
           xTo.current(targetX);
         }
       }
-    };
-    const mouseupCb = () => {
-      if (moveFlag.current) {
-        originalInfo.current = {
-          width: +gsap.getProperty(dialogRef.current, "width"),
-          height: +gsap.getProperty(dialogRef.current, "height"),
-          x: +gsap.getProperty(dialogRef.current, "x"),
-          y: +gsap.getProperty(dialogRef.current, "y"),
-        };
-      }
-      moveFlag.current = false;
-      dispatch(setMovingOrResizing(false));
-    };
-
+    },
+    [fullscreen]
+  );
+  const mouseupCb = useCallback(() => {
+    if (moveFlag.current) {
+      originalInfo.current = {
+        width: +gsap.getProperty(dialogRef.current, "width"),
+        height: +gsap.getProperty(dialogRef.current, "height"),
+        x: +gsap.getProperty(dialogRef.current, "x"),
+        y: +gsap.getProperty(dialogRef.current, "y"),
+      };
+    }
+    moveFlag.current = false;
+    dispatch(setMovingOrResizing(false));
+  }, [fullscreen]);
+  useEffect(() => {
+    dialogRect.current = dialogRef.current.getBoundingClientRect();
     dialogHeaderRef.current.addEventListener("mousedown", mousedownCb);
     window.addEventListener("mousemove", mousemoveCb);
     window.addEventListener("mouseup", mouseupCb);

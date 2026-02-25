@@ -1,6 +1,6 @@
 import { setMovingOrResizing } from "@/store/dialog/dialogSlice";
 import gsap from "gsap";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 
 export default function useResizeLogic(props: any) {
@@ -36,9 +36,9 @@ export default function useResizeLogic(props: any) {
     x: 0,
     y: 0,
   });
-  useEffect(() => {
-    if (fullscreen) return;
-    const mousedownBasic = (e) => {
+
+  const mousedownBasic = useCallback(
+    (e) => {
       diapatch(setMovingOrResizing(true));
       mousedownPosition.current = {
         mouseX: e.x,
@@ -52,39 +52,67 @@ export default function useResizeLogic(props: any) {
         innerHeight: innerHeight,
         innerWidth: innerWidth,
       };
-    };
-    const topMouseDown = (e) => {
+    },
+    [fullscreen]
+  );
+  const topMouseDown = useCallback(
+    (e) => {
       resizeFlag.current = "top";
       mousedownBasic(e);
-    };
-    const bottomMouseDown = (e) => {
+    },
+    [fullscreen]
+  );
+  const bottomMouseDown = useCallback(
+    (e) => {
       resizeFlag.current = "bottom";
       mousedownBasic(e);
-    };
-    const leftMouseDown = (e) => {
+    },
+    [fullscreen]
+  );
+  const leftMouseDown = useCallback(
+    (e) => {
       resizeFlag.current = "left";
       mousedownBasic(e);
-    };
-    const rightMouseDown = (e) => {
+    },
+    [fullscreen]
+  );
+  const rightMouseDown = useCallback(
+    (e) => {
       resizeFlag.current = "right";
       mousedownBasic(e);
-    };
-    const topLeftMouseDown = (e) => {
+    },
+    [fullscreen]
+  );
+  const topLeftMouseDown = useCallback(
+    (e) => {
       resizeFlag.current = "topLeft";
       mousedownBasic(e);
-    };
-    const topRightMouseDown = (e) => {
+    },
+    [fullscreen]
+  );
+  const topRightMouseDown = useCallback(
+    (e) => {
       resizeFlag.current = "topRight";
       mousedownBasic(e);
-    };
-    const bottomLeftMouseDown = (e) => {
+    },
+    [fullscreen]
+  );
+  const bottomLeftMouseDown = useCallback(
+    (e) => {
       resizeFlag.current = "bottomLeft";
       mousedownBasic(e);
-    };
-    const bottomRightMouseDown = (e) => {
+    },
+    [fullscreen]
+  );
+  const bottomRightMouseDown = useCallback(
+    (e) => {
       resizeFlag.current = "bottomRight";
       mousedownBasic(e);
-    };
+    },
+    [fullscreen]
+  );
+  useEffect(() => {
+    if (fullscreen) return;
     topResizeOperator.current.addEventListener("mousedown", topMouseDown);
     bottomResizeOperator.current.addEventListener("mousedown", bottomMouseDown);
     leftResizeOperator.current.addEventListener("mousedown", leftMouseDown);

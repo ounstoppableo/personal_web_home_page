@@ -333,7 +333,7 @@ function App() {
               ref={macOsDockRef}
             />
             <div className="text-center">
-              <p className="text-[2vmin] text-white">
+              <p className="text-[1.5vmin] text-white">
                 © 2026 Unstoppable840. All rights reserved.
               </p>
             </div>
