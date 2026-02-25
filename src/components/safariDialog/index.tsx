@@ -10,6 +10,7 @@ interface Safari_01Props {
   handleOpenChange?: (openStatus: boolean) => any;
   handleMinimizeChange?: (minimizeStatus: boolean) => any;
   handleFullscreenChange?: (fullscreenStatus: boolean) => any;
+  handleHeaderMouseDownCb?: () => any;
   className?: string;
   minimizeTarget?: any;
   onClose?: any;
@@ -18,12 +19,14 @@ interface Safari_01Props {
   defaultFullscreen?: boolean;
   children?: any;
   title?: string;
+  zIndex?: number;
 }
 
 const SafariDialog: React.FC<Safari_01Props> = ({
   handleOpenChange,
   handleMinimizeChange,
   handleFullscreenChange,
+  handleHeaderMouseDownCb,
   className,
   minimizeTarget,
   onClose,
@@ -32,6 +35,7 @@ const SafariDialog: React.FC<Safari_01Props> = ({
   defaultFullscreen,
   children,
   title,
+  zIndex,
 }) => {
   const dialogRef = useRef(null);
   const dialogHeaderRef = useRef(null);
@@ -128,7 +132,7 @@ const SafariDialog: React.FC<Safari_01Props> = ({
       <div
         style={{
           display: open ? "flex" : "none",
-          zIndex: fullscreen ? "calc(var(--maxZIndex) + 1)" : "",
+          zIndex: fullscreen ? "calc(var(--maxZIndex) + 1)" : zIndex,
         }}
         className={cn(
           "pointer-events-auto min-w-[50dvw] min-h-[50dvh] flex flex-col absolute top-0 left-0 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-muted shadow-md",
@@ -176,6 +180,10 @@ const SafariDialog: React.FC<Safari_01Props> = ({
         )}
         <div
           ref={dialogHeaderRef}
+          onDoubleClick={handleFullscreen}
+          onMouseDown={() => {
+            handleHeaderMouseDownCb?.();
+          }}
           className="rounded-[inherit] rounded-b-none overflow-hidden flex items-center justify-between px-4 py-2 bg-gray-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800"
         >
           <div className="flex items-center space-x-2">

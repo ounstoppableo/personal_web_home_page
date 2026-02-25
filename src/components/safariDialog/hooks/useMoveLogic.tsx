@@ -11,11 +11,6 @@ export default function useMoveLogic(props: any) {
   const dialogRect = useRef<any>({ width: 0, height: 0 });
   const dispatch = useDispatch();
 
-  /**
-   * TODO:
-   * 2.层级控制，也是使用store
-   */
-
   useEffect(() => {
     dialogRect.current = dialogRef.current.getBoundingClientRect();
     const mousedownCb = (e: any) => {

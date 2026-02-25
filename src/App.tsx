@@ -248,25 +248,31 @@ function App() {
     const _set = new Set(dialogList.map((item) => item.id));
     if (!_set.has(app.id)) {
       setDialogList([
-        ...dialogListSync.current,
+        ...dialogListSync.current.map((item) => ({
+          ...item,
+          zIndex: 1,
+        })),
         {
           ...app,
           open: true,
           minimize: false,
+          zIndex: 2,
         },
       ]);
     } else {
       const index = dialogList.findIndex((item) => item.id === app.id);
       setDialogList([
-        ...dialogListSync.current.slice(0, index),
+        ...dialogListSync.current
+          .slice(0, index)
+          .map((item) => ({ ...item, zIndex: 1 })),
         {
           ...dialogListSync.current[index],
           minimize: !dialogListSync.current[index].minimize,
+          zIndex: 2,
         },
-        ...dialogListSync.current.slice(
-          index + 1,
-          dialogListSync.current.length
-        ),
+        ...dialogListSync.current
+          .slice(index + 1, dialogListSync.current.length)
+          .map((item) => ({ ...item, zIndex: 1 })),
       ]);
     }
   };
@@ -334,6 +340,20 @@ function App() {
               <SafariDialog
                 defaultOpen={item.open}
                 defaultMinimize={item.minimize}
+                handleHeaderMouseDownCb={() => {
+                  const index = dialogListSync.current.findIndex(
+                    (_item) => _item.id === item.id
+                  );
+                  setDialogList([
+                    ...dialogListSync.current
+                      .slice(0, index)
+                      .map((item) => ({ ...item, zIndex: 1 })),
+                    { ...dialogListSync.current[index], zIndex: 2 },
+                    ...dialogListSync.current
+                      .slice(index + 1, dialogListSync.current.length)
+                      .map((item) => ({ ...item, zIndex: 1 })),
+                  ]);
+                }}
                 handleOpenChange={(openStatus) => {
                   const index = dialogListSync.current.findIndex(
                     (_item) => _item.id === item.id
@@ -363,6 +383,7 @@ function App() {
                     ),
                   ]);
                 }}
+                zIndex={item.zIndex}
                 key={item.id}
                 title={item.name}
                 onClose={() => {
