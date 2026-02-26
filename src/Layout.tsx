@@ -19,25 +19,25 @@ export default function Layout() {
   const initApps = [
     {
       id: "Blog",
-      name: "Blog",
+      name: "我的博客",
       icon: "/blog.webp",
       url: import.meta.env.VITE_BLOG_URL,
     },
     {
       id: "ChatPlatform",
-      name: "ChatPlatform",
+      name: "聊天平台",
       icon: "/chat.webp",
       url: import.meta.env.VITE_CHATPLATFORM_URL,
     },
     {
       id: "ComponentLibrary",
-      name: "ComponentLibrary",
+      name: "组件库",
       icon: "/component.webp",
       url: import.meta.env.VITE_COMPONENTLIBRARY_URL,
     },
     {
       id: "MediaLibrary",
-      name: "MediaLibrary",
+      name: "媒体库",
       icon: "/mediaLibrary.webp",
       url: import.meta.env.VITE_MEDIALIBRARY_URL,
     },
