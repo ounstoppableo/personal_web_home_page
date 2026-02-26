@@ -180,11 +180,37 @@ export default function Layout() {
         res.appId && macOsDockRef.current.handleAppClick(res.appId, true, true);
       },
     };
+    const loginSuccessListener = {
+      tag: "loginSuccess",
+      cb: (res) => {
+        res.token && localStorage.setItem("token", res.token);
+      },
+    };
+    const loginExpireListener = {
+      tag: "loginExpire",
+      cb: (res) => {
+        localStorage.setItem("token", "");
+      },
+    };
     iframeCommunicationListener.push(openAppListener);
+    iframeCommunicationListener.push(loginSuccessListener);
+    iframeCommunicationListener.push(loginExpireListener);
     return () => {
       iframeCommunicationListener.splice(
         iframeCommunicationListener.findIndex(
           (listener) => listener === openAppListener
+        ),
+        1
+      );
+      iframeCommunicationListener.splice(
+        iframeCommunicationListener.findIndex(
+          (listener) => listener === loginSuccessListener
+        ),
+        1
+      );
+      iframeCommunicationListener.splice(
+        iframeCommunicationListener.findIndex(
+          (listener) => listener === loginExpireListener
         ),
         1
       );
@@ -305,7 +331,9 @@ export default function Layout() {
               <iframe
                 className="w-full h-full"
                 id={`${item.id}_iframe`}
-                src={item.url}
+                src={`${item.url}/?appOpenMethod=${appOpenMethod}&theme=${
+                  darkMode ? "darkMode" : "default"
+                }&token=${localStorage.getItem("token")}`}
                 ref={(el: any) => (iframes.current[index] = el)}
               ></iframe>
             </SafariDialog>
