@@ -97,6 +97,7 @@ export default function Layout() {
   const dialogRootContainerRef = useRef(null);
   const [dialogList, _setDialogList] = useState([]);
   const dialogListSync = useRef(dialogList);
+  const darkMode = useSelector((state: any) => state.setting.darkMode);
   const setDialogList = (value) => {
     dialogListSync.current = value;
     _setDialogList(value);
@@ -140,6 +141,7 @@ export default function Layout() {
     }
   };
 
+  // iframe数据通信
   const iframes = useRef<any>([]);
   useEffect(() => {
     iframes.current
@@ -152,7 +154,19 @@ export default function Layout() {
           },
         });
       });
-  }, [dialogList]);
+  }, [dialogList, appOpenMethod]);
+  useEffect(() => {
+    iframes.current
+      .filter((iframe) => iframe)
+      .forEach((iframeInstance) => {
+        sendMessageToIframe(iframeInstance, {
+          type: "themeChange",
+          data: {
+            theme: darkMode ? "darkMode" : "default",
+          },
+        });
+      });
+  }, [dialogList, darkMode]);
   useEffect(() => {
     const openAppListener = {
       tag: "openApp",
@@ -176,6 +190,7 @@ export default function Layout() {
       );
     };
   }, []);
+
   return (
     <div className="w-dvw h-dvh relative select-none">
       <div className="absolute right-[8vmin] bottom-[6vmin]">

@@ -17,10 +17,13 @@ import {
   Check,
   IndianRupee,
   Menu,
+  Moon,
   Outdent,
+  Palette,
   PanelsTopLeft,
   Settings,
   SquareArrowOutUpRight,
+  Sun,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
@@ -29,7 +32,7 @@ import { App } from "antd";
 import { Button } from "./ui/button";
 import { closedFloat, seasonSelect } from "@/utils/seasonFloat";
 import { useDispatch, useSelector } from "react-redux";
-import { setAppOpenMethod } from "@/store/setting/settingSlice";
+import { setAppOpenMethod, setDarkMode } from "@/store/setting/settingSlice";
 import gsap from "gsap";
 
 export default function Settiing(props: any) {
@@ -37,6 +40,7 @@ export default function Settiing(props: any) {
   const { message } = App.useApp();
   const [open, setOpen] = useState(false);
   const [moveFlag, setMoveFlag] = useState(false);
+  const darkMode = useSelector((state: any) => state.setting.darkMode);
   const menuContainerRef = useRef(null);
   const triggerBtnRef = useRef(null);
   const triggerBtnRect = useRef({ x: 0, y: 0, width: 0, height: 0 });
@@ -132,6 +136,19 @@ export default function Settiing(props: any) {
     }
   }, []);
 
+  // 暗黑模式持久化
+  useEffect(() => {
+    const localDarkMode = localStorage.getItem("darkMode");
+    dispatch(setDarkMode(localDarkMode === "false" ? false : true));
+  }, []);
+  useEffect(() => {
+    if (typeof darkMode === "boolean") {
+      darkMode
+        ? document.documentElement.classList.add("dark")
+        : document.documentElement.classList.remove("dark");
+    }
+  }, [darkMode]);
+
   return (
     <AnimatePresence>
       {showSetting && (
@@ -167,7 +184,7 @@ export default function Settiing(props: any) {
               }}
             >
               <Button
-                variant="outline"
+                variant="secondary"
                 size="icon"
                 className="rounded-full cursor-pointer"
                 ref={triggerBtnRef}
@@ -227,6 +244,48 @@ export default function Settiing(props: any) {
                         ) : (
                           <></>
                         )}
+                      </DropdownMenuRadioItem>
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="flex items-center gap-2 rounded-lg py-2 px-2 hover:bg-background/50">
+                  <Palette className="w-4 h-4" />
+                  <span className="flex-1">主题管理</span>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent className="w-44 rounded-lg border shadow-sm p-1 z-[var(--maxZIndex)]">
+                    <DropdownMenuRadioGroup value="light">
+                      <DropdownMenuRadioItem
+                        value="light"
+                        className="flex items-center gap-2 py-1 px-2 rounded"
+                        onClick={() => {
+                          localStorage.setItem(
+                            "darkMode",
+                            JSON.stringify(false)
+                          );
+                          dispatch(setDarkMode(false));
+                        }}
+                      >
+                        <Sun className="w-4 h-4" />
+                        <span className="flex-1">亮色模式</span>
+                        {darkMode ? <></> : <Check className="h-4 w-4"></Check>}
+                      </DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem
+                        value="dark"
+                        className="flex items-center gap-2 py-1 px-2 rounded"
+                        onClick={() => {
+                          localStorage.setItem(
+                            "darkMode",
+                            JSON.stringify(true)
+                          );
+                          dispatch(setDarkMode(true));
+                        }}
+                      >
+                        <Moon className="w-4 h-4" />
+                        <span className="flex-1">暗黑模式</span>
+                        {darkMode ? <Check className="h-4 w-4"></Check> : <></>}
                       </DropdownMenuRadioItem>
                     </DropdownMenuRadioGroup>
                   </DropdownMenuSubContent>

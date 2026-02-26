@@ -31,14 +31,13 @@ export const iframeCommunicationProcessor = deepProxy(
   {
     set(target, prop, value) {
       target[prop] = value;
-      serverListener();
       return true;
     },
   }
 );
 const _cb = (e: any) => {
   const params = e.data as requestRecords<requestType>;
-  for (let key in iframeCommunicationProcessor) {
+  for (const key in iframeCommunicationProcessor) {
     if (params.type === iframeCommunicationProcessor[key].tag) {
       iframeCommunicationProcessor[key].cb(
         (params as requestRecords<requestType>).data
@@ -51,6 +50,7 @@ let listenerReady = false;
 let handShakeInterval = null;
 export const serverListener = () => {
   if (!listenerReady) {
+    window.removeEventListener("message", _cb);
     window.addEventListener("message", _cb);
     if (!handShakeInterval) {
       handleSendMsg({
