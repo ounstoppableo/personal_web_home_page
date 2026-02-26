@@ -9,6 +9,11 @@ import solarLunar from "solarLunar";
 import Settiing from "./components/Setting";
 import SafariDialog from "./components/safariDialog";
 import { useSelector } from "react-redux";
+import {
+  deleteIframe,
+  iframeCommunicationListener,
+  sendMessageToIframe,
+} from "./utils/iframeCommunication/client";
 export default function Layout() {
   const [background, setBackground] = useState<string>("");
   const initApps = [
@@ -134,6 +139,43 @@ export default function Layout() {
       }
     }
   };
+
+  const iframes = useRef<any>([]);
+  useEffect(() => {
+    iframes.current
+      .filter((iframe) => iframe)
+      .forEach((iframeInstance) => {
+        sendMessageToIframe(iframeInstance, {
+          type: "appOpenMethod",
+          data: {
+            appOpenMethod: appOpenMethod,
+          },
+        });
+      });
+  }, [dialogList]);
+  useEffect(() => {
+    const openAppListener = {
+      tag: "openApp",
+      cb: (res) => {
+        if (res.appId === "Navigation") {
+          dialogListSync.current.forEach((item) => {
+            macOsDockRef.current.handleAppClick(item.id, true, true);
+          });
+          return;
+        }
+        res.appId && macOsDockRef.current.handleAppClick(res.appId, true, true);
+      },
+    };
+    iframeCommunicationListener.push(openAppListener);
+    return () => {
+      iframeCommunicationListener.splice(
+        iframeCommunicationListener.findIndex(
+          (listener) => listener === openAppListener
+        ),
+        1
+      );
+    };
+  }, []);
   return (
     <div className="w-dvw h-dvh relative select-none">
       <div className="absolute right-[8vmin] bottom-[6vmin]">
@@ -196,7 +238,7 @@ export default function Layout() {
           ref={dialogRootContainerRef}
           className="absolute inset-0 pointer-events-none"
         >
-          {dialogList.map((item) => (
+          {dialogList.map((item, index) => (
             <SafariDialog
               defaultOpen={item.open}
               defaultMinimize={item.minimize}
@@ -216,6 +258,7 @@ export default function Layout() {
               }}
               handleOpenChange={(openStatus) => {
                 macOsDockRef.current.handleAppClick(item.id, false);
+                deleteIframe(`${item.id}_iframe`);
               }}
               handleMinimizeChange={(minimizeStatus) => {
                 const index = dialogListSync.current.findIndex(
@@ -244,7 +287,12 @@ export default function Layout() {
                 );
               }}
             >
-              <iframe className="w-full h-full" src={item.url}></iframe>
+              <iframe
+                className="w-full h-full"
+                id={`${item.id}_iframe`}
+                src={item.url}
+                ref={(el: any) => (iframes.current[index] = el)}
+              ></iframe>
             </SafariDialog>
           ))}
         </div>

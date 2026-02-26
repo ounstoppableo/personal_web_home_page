@@ -267,7 +267,11 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
     };
 
     useImperativeHandle(ref, () => ({
-      handleAppClick: (appId, bounce: boolean = true) => {
+      handleAppClick: (
+        appId,
+        bounce: boolean = true,
+        triggerAppClick: boolean = false
+      ) => {
         const _index = apps.findIndex((app) => app.id === appId);
         const index =
           _index !== -1
@@ -277,6 +281,9 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
           createBounceAnimation(iconRefs.current[index]!);
         }
         _handleAppClick(appId);
+        if (appId !== "folder" && triggerAppClick) {
+          onAppClick(initApps.find((app) => app.id === appId));
+        }
       },
     }));
     const appContainerRef = useRef<HTMLDivElement>(null);
