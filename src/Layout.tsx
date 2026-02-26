@@ -55,7 +55,7 @@ export default function Layout() {
   );
 
   useEffect(() => {
-    request("/api/media/randomByTag", {
+    request("/apiFromMedia/media/randomByTag", {
       method: "post",
       body: {
         count: 1,
@@ -226,7 +226,7 @@ export default function Layout() {
         <>
           <img
             className="object-cover absolute inset-0 w-full h-full overflow-hidden -z-2"
-            src={`/image${background}`}
+            src={`/imageFromMedia${background}`}
           ></img>
           <div className="absolute inset-0 w-full h-full overflow-hidden -z-1 bg-black/20"></div>
         </>

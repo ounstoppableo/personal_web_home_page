@@ -15,14 +15,15 @@ export default defineConfig({
   ],
   server: {
     proxy: {
-      "/api": {
-        target: "http://localhost:9999",
+      "/apiFromMedia": {
+        target: "http://localhost:9999/api",
+        rewrite: (path) => path.replace(/^\/apiFromMedia/, ""),
         changeOrigin: true,
       },
-      "/image": {
+      "/imageFromMedia": {
         target: "http://localhost:9999",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/image/, ""),
+        rewrite: (path) => path.replace(/^\/imageFromMedia/, ""),
         autoRewrite: true,
       },
     },
