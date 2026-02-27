@@ -94,7 +94,7 @@ export const LiquidGlassCard = ({
       }
     : {};
 
-  const MotionComponent = draggable || expandable ? motion.div : "div";
+  const MotionComponent: any = draggable || expandable ? motion.div : "div";
 
   const motionProps =
     draggable || expandable
@@ -155,8 +155,10 @@ export const LiquidGlassCard = ({
       </svg>
       <MotionComponent
         className={cn(
-          `relative w-full h-full ${draggable ? "cursor-grab active:cursor-grabbing" : ""} ${expandable ? "cursor-pointer" : ""}`,
-          className,
+          `relative w-full h-full ${
+            draggable ? "cursor-grab active:cursor-grabbing" : ""
+          } ${expandable ? "cursor-pointer" : ""}`,
+          className
         )}
         style={{
           borderRadius,

@@ -5,7 +5,7 @@ import type { CommonResponse } from "./types/response";
 import { codeMap } from "./utils/backendStatus";
 import MacOSDock from "./components/mac-os-dock";
 import dayjs from "dayjs";
-import solarLunar from "solarLunar";
+import solarLunar from "solarlunar";
 import Settiing from "./components/Setting";
 import SafariDialog from "./components/safariDialog";
 import { useSelector } from "react-redux";
