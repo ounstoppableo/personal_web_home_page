@@ -59,7 +59,7 @@ export default function Layout() {
       method: "post",
       body: {
         count: 1,
-        tags: ["bg"],
+        tags: ["background"],
       },
     }).then((res: CommonResponse) => {
       if (res.code === codeMap.success) {
