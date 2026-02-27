@@ -16,12 +16,12 @@ export default defineConfig({
   server: {
     proxy: {
       "/apiFromMedia": {
-        target: "http://localhost:9999/api",
+        target: "https://www.unstoppable840.cn:5335/api",
         rewrite: (path) => path.replace(/^\/apiFromMedia/, ""),
         changeOrigin: true,
       },
       "/imageFromMedia": {
-        target: "http://localhost:9999",
+        target: "https://www.unstoppable840.cn:5335",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/imageFromMedia/, ""),
         autoRewrite: true,

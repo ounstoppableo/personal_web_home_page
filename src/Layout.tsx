@@ -14,6 +14,7 @@ import {
   iframeCommunicationListener,
   sendMessageToIframe,
 } from "./utils/iframeCommunication/client";
+import Loading from "./components/loading/loading";
 export default function Layout() {
   const [background, setBackground] = useState<string>("");
   const initApps = [
@@ -58,13 +59,16 @@ export default function Layout() {
     const token = params.get("token");
     token && localStorage.setItem("token", token);
     window.history.replaceState({}, "", window.location.pathname);
+    if (window.location.pathname !== "/") {
+      window.history.replaceState({}, "", "/");
+    }
   }, []);
   useEffect(() => {
     request("/apiFromMedia/media/randomByTag", {
       method: "post",
       body: {
         count: 1,
-        tags: ["bg"],
+        tags: ["Background"],
       },
     }).then((res: CommonResponse) => {
       if (res.code === codeMap.success) {
@@ -124,6 +128,7 @@ export default function Layout() {
             minimizeTargetSelector: `#${app.id}`,
             open: true,
             minimize: false,
+            loading: true,
             zIndex: 2,
           },
         ]);
@@ -201,6 +206,9 @@ export default function Layout() {
       tag: "handshake",
       cb: (res) => {
         if (res.count === 3) {
+          setDialogList(
+            dialogListSync.current.map((item) => ({ ...item, loading: false }))
+          );
           iframes.current
             .filter((iframe) => iframe)
             .forEach((iframeInstance) => {
@@ -357,6 +365,11 @@ export default function Layout() {
                 );
               }}
             >
+              {item.loading && (
+                <div className="absolute z-10 inset-0">
+                  <Loading></Loading>
+                </div>
+              )}
               <iframe
                 className="w-full h-full"
                 id={`${item.id}_iframe`}
