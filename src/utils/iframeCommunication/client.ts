@@ -1,9 +1,9 @@
 import { deepProxy, observeArray } from "./deepProxy";
 import type { requestRecords, requestType, responseRecords } from "./type";
-const _iframeInitCb = {};
-const _serverMapIframeId = {};
-const _idMapIframe = {};
-const _idMapIframeLoadPromise = {};
+const _iframeInitCb: any = {};
+const _serverMapIframeId: any = {};
+const _idMapIframe: any = {};
+const _idMapIframeLoadPromise: any = {};
 let _listenerReady = false;
 
 export const iframeCommunicationListener: {
@@ -24,7 +24,7 @@ export const iframeCommunicationListener: {
                   serverId: resData.serverId,
                   clientId: key,
                   count: resData.count + 1,
-                  tag: resData.tag,
+                  extraMsg: resData.extraMsg,
                 },
               } as requestRecords<"handshake">,
               "*"
@@ -32,7 +32,7 @@ export const iframeCommunicationListener: {
           }
         }
         if (resData.count === 3) {
-          _iframeInitCb[resData.clientId]?.();
+          _iframeInitCb[resData.clientId as any]?.();
           _serverMapIframeId[resData.serverId] = resData.clientId;
         }
       },
@@ -43,7 +43,7 @@ export const iframeCommunicationListener: {
   }
 );
 
-const _cb = (e) => {
+const _cb = (e: any) => {
   const params = e.data as responseRecords<requestType>;
   for (let key in iframeCommunicationListener) {
     if (
@@ -69,7 +69,7 @@ const clientListener = () => {
   !_listenerReady && window.addEventListener("message", _cb);
 };
 
-const _init = (iframeInstance) => {
+const _init = (iframeInstance: any) => {
   if (!_idMapIframeLoadPromise[iframeInstance.id])
     _idMapIframeLoadPromise[iframeInstance.id] = new Promise((resolve) => {
       _idMapIframe[iframeInstance.id] = iframeInstance;
@@ -79,7 +79,7 @@ const _init = (iframeInstance) => {
   return _idMapIframeLoadPromise[iframeInstance.id];
 };
 export const sendMessageToIframe = <T extends requestType>(
-  iframeInstance,
+  iframeInstance: any,
   records: requestRecords<T>,
   listenerCb?: (args: responseRecords<requestType>["data"]) => any
 ) => {
@@ -100,6 +100,6 @@ export const sendMessageToIframe = <T extends requestType>(
   });
 };
 
-export const deleteIframe = (iframeId) => {
+export const deleteIframe = (iframeId: any) => {
   delete _idMapIframeLoadPromise[iframeId];
 };

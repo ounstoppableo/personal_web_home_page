@@ -53,13 +53,18 @@ export default function Layout() {
   const appOpenMethod = useSelector(
     (state: any) => state.setting.appOpenMethod
   );
-
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    token && localStorage.setItem("token", token);
+    window.history.replaceState({}, "", window.location.pathname);
+  }, []);
   useEffect(() => {
     request("/apiFromMedia/media/randomByTag", {
       method: "post",
       body: {
         count: 1,
-        tags: ["background"],
+        tags: ["bg"],
       },
     }).then((res: CommonResponse) => {
       if (res.code === codeMap.success) {
@@ -192,9 +197,27 @@ export default function Layout() {
         localStorage.setItem("token", "");
       },
     };
+    const handshakeListener = {
+      tag: "handshake",
+      cb: (res) => {
+        if (res.count === 3) {
+          iframes.current
+            .filter((iframe) => iframe)
+            .forEach((iframeInstance) => {
+              sendMessageToIframe(iframeInstance, {
+                type: "appOpenMethod",
+                data: {
+                  appOpenMethod: appOpenMethod,
+                },
+              });
+            });
+        }
+      },
+    };
     iframeCommunicationListener.push(openAppListener);
     iframeCommunicationListener.push(loginSuccessListener);
     iframeCommunicationListener.push(loginExpireListener);
+    iframeCommunicationListener.push(handshakeListener);
     return () => {
       iframeCommunicationListener.splice(
         iframeCommunicationListener.findIndex(
@@ -211,6 +234,12 @@ export default function Layout() {
       iframeCommunicationListener.splice(
         iframeCommunicationListener.findIndex(
           (listener) => listener === loginExpireListener
+        ),
+        1
+      );
+      iframeCommunicationListener.splice(
+        iframeCommunicationListener.findIndex(
+          (listener) => listener === handshakeListener
         ),
         1
       );
@@ -331,9 +360,7 @@ export default function Layout() {
               <iframe
                 className="w-full h-full"
                 id={`${item.id}_iframe`}
-                src={`${item.url}/?appOpenMethod=${appOpenMethod}&theme=${
-                  darkMode ? "darkMode" : "default"
-                }&token=${localStorage.getItem("token")}`}
+                src={`${item.url}/?token=${localStorage.getItem("token")}`}
                 ref={(el: any) => (iframes.current[index] = el)}
               ></iframe>
             </SafariDialog>

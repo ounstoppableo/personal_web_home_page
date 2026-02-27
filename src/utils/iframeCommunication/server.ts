@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 import { deepProxy } from "./deepProxy";
 const connectId = uuidv4();
 
-export const iframeCommunicationProcessor = deepProxy(
+export const iframeCommunicationProcessor: any = deepProxy(
   {
     _handShakeProcessor: {
       tag: "handshake",
@@ -47,20 +47,20 @@ const _cb = (e: any) => {
 };
 
 let listenerReady = false;
-let handShakeInterval = null;
-export const serverListener = () => {
+let handShakeInterval: any = null;
+export const serverListener = (extraMsg?: any) => {
   if (!listenerReady) {
     window.removeEventListener("message", _cb);
     window.addEventListener("message", _cb);
     if (!handShakeInterval) {
       handleSendMsg({
         type: "handshake",
-        data: { serverId: connectId as string, count: 1 },
+        data: { extraMsg, serverId: connectId as string, count: 1 },
       });
       handShakeInterval = setInterval(() => {
         handleSendMsg({
           type: "handshake",
-          data: { serverId: connectId as string, count: 1 },
+          data: { extraMsg, serverId: connectId as string, count: 1 },
         });
       }, 1000);
     }
