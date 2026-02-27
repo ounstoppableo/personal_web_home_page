@@ -1,9 +1,11 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
+import { v4 as uuidv4 } from "uuid";
 
 export default function Loading() {
+  const [soleSignal] = useState(`cat_${uuidv4()}`);
   const darkMode = useSelector((state: any) => state.setting.darkMode);
   const bongoCatDarkRef = useRef(null);
   const bongoCatLightRef = useRef(null);
@@ -22,9 +24,8 @@ export default function Loading() {
   // js
   useGSAP(
     () => {
-      const ID = "bongo-cat";
-      const s = (selector) => `#${ID} ${selector}`;
-      const notes = document.querySelectorAll(".note");
+      const s = (selector) => `.${soleSignal} ${selector}`;
+      const notes = containerRef.current.querySelectorAll(".note");
 
       for (let note of notes) {
         note?.parentElement?.appendChild(note.cloneNode(true));
@@ -135,7 +136,7 @@ export default function Loading() {
         .add(animateNotes(notesG2), ">0.05")
         .add(animateNotes(notesG3), ">0.25");
     },
-    { dependencies: [[darkMode]], scope: containerRef.current }
+    { dependencies: [darkMode, soleSignal], scope: containerRef.current }
   );
   return (
     <div className="w-full h-full bg-background" ref={containerRef}>
@@ -143,7 +144,7 @@ export default function Loading() {
         <div ref={bongoCatDarkRef} className="content">
           <div className="container">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 783.55 354.91">
-              <g id="bongo-cat">
+              <g id="bongo-cat" className={`${soleSignal}`}>
                 <g className="head">
                   <path d="M280.4,221l383.8,62.6a171.4,171.4,0,0,0-9.2-40.5,174,174,0,0,0-28.7-50.5,163.3,163.3,0,0,0,3.2-73.8c-11.6-1.9-42,14.2-44.5,17.5-19.6-24-88.5-52.7-153.7-48.1A78.8,78.8,0,0,0,398,67.1c-9.8,2.9-19,29.7-19.4,33.7a320,320,0,0,0-31.7,23.6c-14,11.8-28.9,24.4-42.5,44.3A173,173,0,0,0,280.4,221Z"></path>
                   <path d="M396.6,178.6c.4.9,2.7,6.5,8.5,8.4s13.4-1.2,17.2-7.9c-.9,7.5,3.8,14.3,10.4,16a14.4,14.4,0,0,0,15-5.7"></path>
@@ -380,6 +381,7 @@ export default function Loading() {
           <div className="container">
             <svg
               id="bongo-cat"
+              className={`${soleSignal}`}
               xmlns="http://www.w3.org/2000/svg"
               xmlnsXlink="http://www.w3.org/1999/xlink"
               viewBox="0 0 787.3 433.8"

@@ -183,7 +183,8 @@ export default function Layout() {
       cb: (res) => {
         if (res.appId === "Navigation") {
           dialogListSync.current.forEach((item) => {
-            macOsDockRef.current.handleAppClick(item.id, true, true);
+            !item.minimize &&
+              macOsDockRef.current.handleAppClick(item.id, true, true);
           });
           return;
         }
@@ -206,9 +207,17 @@ export default function Layout() {
       tag: "handshake",
       cb: (res) => {
         if (res.count === 3) {
-          setDialogList(
-            dialogListSync.current.map((item) => ({ ...item, loading: false }))
-          );
+          const index = dialogListSync.current.findIndex((item) => {
+            return res.clientId.startsWith(item.id);
+          });
+          setDialogList([
+            ...dialogListSync.current.slice(0, index),
+            {
+              ...dialogListSync.current[index],
+              loading: false,
+            },
+            ...dialogListSync.current.slice(index + 1),
+          ]);
           iframes.current
             .filter((iframe) => iframe)
             .forEach((iframeInstance) => {
