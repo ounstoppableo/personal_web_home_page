@@ -1,4 +1,5 @@
 export enum codeMap {
+  success_200 = 200,
   success = 2000,
   clientError = 4000,
   limitsOfAuthority = 4001,

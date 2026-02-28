@@ -56,17 +56,20 @@ const SafariDialog: React.FC<Safari_01Props> = ({
   const contentRef = useRef(null);
   const refreshContentSize = () => {
     const rect = dialogContentContainerRef.current.getBoundingClientRect();
-    contentRef.current.style.transform = `scale(${rect.width / innerWidth},${
-      rect.height / innerHeight
+    const scaleX = rect.width / innerWidth;
+    const scaleY = rect.height / innerHeight;
+    contentRef.current.style.transform = `scale(${scaleX > 1 ? 1 : scaleX},${
+      scaleY > 1 ? 1 : scaleY
     })`;
   };
   const refreshOriginalInfo = () => {
-    originalInfo.current = {
-      width: +gsap.getProperty(dialogRef.current, "width"),
-      height: +gsap.getProperty(dialogRef.current, "height"),
-      x: +gsap.getProperty(dialogRef.current, "x"),
-      y: +gsap.getProperty(dialogRef.current, "y"),
-    };
+    !fullscreenSync.current &&
+      (originalInfo.current = {
+        width: +gsap.getProperty(dialogRef.current, "width"),
+        height: +gsap.getProperty(dialogRef.current, "height"),
+        x: +gsap.getProperty(dialogRef.current, "x"),
+        y: +gsap.getProperty(dialogRef.current, "y"),
+      });
   };
 
   const {
@@ -76,6 +79,7 @@ const SafariDialog: React.FC<Safari_01Props> = ({
     handleMinimize,
     handleFullscreen,
     minimizeSync,
+    fullscreenSync,
   } = useOperateLogic({
     handleOpenChange,
     handleMinimizeChange,
@@ -171,10 +175,14 @@ const SafariDialog: React.FC<Safari_01Props> = ({
     const cb = () => {
       requestAnimationFrame(() => {
         if (minimizeSync.current) return;
-        const dialogRect = dialogRef.current.getBoundingClientRect();
-        widthTo.current(dialogRect.width);
-        heightTo.current(dialogRect.height);
-        refreshOriginalInfo();
+        if (fullscreenSync.current) {
+          widthTo.current(innerWidth);
+          heightTo.current(innerHeight);
+        } else {
+          const dialogRect = dialogRef.current.getBoundingClientRect();
+          widthTo.current(dialogRect.width);
+          heightTo.current(dialogRect.height);
+        }
       });
     };
 
@@ -190,9 +198,7 @@ const SafariDialog: React.FC<Safari_01Props> = ({
         style={{
           display: open ? "flex" : "none",
           zIndex: fullscreen ? "calc(var(--maxZIndex) + 1)" : zIndex,
-          transform: `scale(0) translate(${innerWidth / 4}px,${
-            innerHeight / 4
-          }px)`,
+          scale: 0,
         }}
         className={cn(
           "pointer-events-auto min-w-[50dvw] min-h-[50dvh] flex flex-col absolute top-0 left-0 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-muted shadow-md",

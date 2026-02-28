@@ -54,7 +54,7 @@ export class FetchInterceptor {
         message?.error?.(errorData.message);
       }
       const res = await response.json();
-      if (res.code !== codeMap.success) {
+      if (res.code !== codeMap.success && res.code !== codeMap.success_200) {
         if (res.code === codeMap.limitsOfAuthority) {
           localStorage.setItem("token", "");
           window.history.replaceState({}, "", window.location.pathname);

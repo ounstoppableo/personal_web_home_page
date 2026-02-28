@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
-import request from "./utils/fetch";
+import request, { initMessageTool } from "./utils/fetch";
 import type { CommonResponse } from "./types/response";
 import { codeMap } from "./utils/backendStatus";
 import MacOSDock from "./components/mac-os-dock";
@@ -16,8 +16,13 @@ import {
 } from "./utils/iframeCommunication/client";
 import Loading from "./components/loading/loading";
 import MusicPlayer from "./components/musicPlayer";
+import { App } from "antd";
 export default function Layout() {
   const [background, setBackground] = useState<string>("");
+  const { message } = App.useApp();
+  useEffect(() => {
+    initMessageTool(message);
+  }, []);
   const initApps = [
     {
       id: "Blog",
@@ -87,11 +92,21 @@ export default function Layout() {
         count: 1,
         tags: ["Background"],
       },
-    }).then((res: CommonResponse) => {
-      if (res.code === codeMap.success) {
-        setBackground(res.data[0]?.sourcePath);
-      }
-    });
+    })
+      .then((res: CommonResponse) => {
+        if (res.code === codeMap.success) {
+          if (res.data[0]) {
+            setBackground(`/imageFromMedia${res.data[0].sourcePath}`);
+          } else {
+            setBackground("/default_background.jpg");
+          }
+        } else {
+          setBackground("/default_background.jpg");
+        }
+      })
+      .catch(() => {
+        setBackground("/default_background.jpg");
+      });
     request("/api/getMusicInfo").then((res) => {
       if ((res as any).code === 200) {
         setMusicList((res as any).result);
@@ -285,28 +300,30 @@ export default function Layout() {
   }, []);
 
   useEffect(() => {
-    const imgs = document.querySelectorAll("img");
-    const promises = Array.from(imgs).map((img) => {
-      let _resolve;
-      const promise = new Promise((resolve) => {
-        _resolve = resolve;
+    if (background) {
+      const imgs = document.querySelectorAll("img");
+      const promises = Array.from(imgs).map((img) => {
+        let _resolve;
+        const promise = new Promise((resolve) => {
+          _resolve = resolve;
+        });
+        if (img.complete) {
+          _resolve(1);
+        } else {
+          img.onload = () => {
+            _resolve(1);
+          };
+          img.onerror = () => {
+            _resolve(1);
+          };
+        }
+        return promise;
       });
-      if (img.complete) {
-        _resolve(1);
-      } else {
-        img.onload = () => {
-          _resolve(1);
-        };
-        img.onerror = () => {
-          _resolve(1);
-        };
-      }
-      return promise;
-    });
-    Promise.all(promises).then(() => {
-      setGlobalLoading(false);
-    });
-  }, []);
+      Promise.all(promises).then(() => {
+        setGlobalLoading(false);
+      });
+    }
+  }, [background]);
 
   return (
     <div className="w-dvw h-dvh relative select-none">
@@ -324,7 +341,7 @@ export default function Layout() {
         <>
           <img
             className="object-cover absolute inset-0 w-full h-full overflow-hidden -z-2"
-            src={`/imageFromMedia${background}`}
+            src={`${background}`}
           ></img>
           <div className="absolute inset-0 w-full h-full overflow-hidden -z-1 bg-black/20"></div>
         </>
@@ -361,7 +378,7 @@ export default function Layout() {
             </div>
           </div>
         )}
-        <div className="w-full flex justify-center items-center px-[8vmin]">
+        <div className="w-full flex justify-center items-center relative z-0 [@media(min-aspect-ratio:4/1)]:hidden">
           <MusicPlayer musicList={musicList}></MusicPlayer>
         </div>
         <div className="dialogBottomBoundary flex flex-col justify-center items-center gap-[2vmin] select-none z-[calc(var(--maxZIndex))]">
@@ -378,7 +395,7 @@ export default function Layout() {
         </div>
         <div
           ref={dialogRootContainerRef}
-          className="absolute inset-0 pointer-events-none"
+          className="absolute inset-0 pointer-events-none z-10"
         >
           {dialogList.map((item, index) => (
             <SafariDialog

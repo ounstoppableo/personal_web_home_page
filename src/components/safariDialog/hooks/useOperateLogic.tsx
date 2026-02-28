@@ -32,9 +32,14 @@ export default function useOperateLogic(props: any) {
     _setMinimize(value);
     minimizeSync.current = value;
   };
-  const [fullscreen, setFullscreen] = useState(
+  const [fullscreen, _setFullscreen] = useState(
     typeof defaultFullscreen === "boolean" ? defaultFullscreen : false
   );
+  const fullscreenSync = useRef(fullscreen);
+  const setFullscreen = (value) => {
+    fullscreenSync.current = value;
+    _setFullscreen(value);
+  };
   const handleClose = () => {
     setOpen(false);
     onClose?.();
@@ -196,5 +201,6 @@ export default function useOperateLogic(props: any) {
     handleMinimize,
     handleFullscreen,
     minimizeSync,
+    fullscreenSync,
   };
 }

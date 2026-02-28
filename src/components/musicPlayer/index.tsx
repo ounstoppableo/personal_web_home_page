@@ -69,7 +69,7 @@ export default function MusicPlayer(props: any) {
           lyricList.current.findIndex(
             (item) => item.seconds > audioRef.current.currentTime
           ) - 1
-        ].lyric
+        ]?.lyric || ""
       );
 
     !processMove.current &&
@@ -215,7 +215,7 @@ export default function MusicPlayer(props: any) {
   return (
     <>
       {musicList.length !== 0 && (
-        <LiquidGlassCard className="z-0">
+        <LiquidGlassCard>
           <div className="w-full h-full py-[3vmin] px-[4vmin] flex flex-col gap-[2vmin] text-white">
             <div className="flex gap-[2vmin] items-center">
               <div className="w-[12vmin] h-[12vmin] rounded-lg overflow-hidden">
