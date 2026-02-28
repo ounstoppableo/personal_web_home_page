@@ -158,7 +158,7 @@ export default function Settiing(props: any) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          className="fixed top-0 left-0 z-[calc(var(--maxZIndex)+1)]"
+          className="fixed top-0 left-0 z-[calc(var(--maxZIndex))]"
         >
           <DropdownMenu modal={false} open={open} onOpenChange={setOpen}>
             <DropdownMenuTrigger

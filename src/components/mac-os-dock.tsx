@@ -32,9 +32,13 @@ interface MacOSDockProps {
 
 const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
   ({ initApps, onAppClick, className = "", folder = true }, ref) => {
+    const splitCount = 4;
     const [apps] = useState<DockApp[]>(
       folder
-        ? [...initApps.slice(0, 5), { id: "folder", name: "Folder", icon: "" }]
+        ? [
+            ...initApps.slice(0, splitCount),
+            { id: "folder", name: "Folder", icon: "" },
+          ]
         : initApps
     );
     const [openApps, _setOpenApps] = useState<string[]>([]);
@@ -43,7 +47,9 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
       openAppsRef.current = appIds(openAppsRef.current);
       _setOpenApps(appIds);
     };
-    const [folderApps] = useState<DockApp[]>(folder ? initApps.slice(5) : []);
+    const [folderApps] = useState<DockApp[]>(
+      folder ? initApps.slice(splitCount) : []
+    );
     const mouseXSync = useRef<number | null>(null);
     const setMouseX = (value: number) => {
       mouseXSync.current = value;
@@ -276,7 +282,8 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
         const index =
           _index !== -1
             ? _index
-            : folderApps.findIndex((app) => app.id === appId) !== -1 && 5;
+            : folderApps.findIndex((app) => app.id === appId) !== -1 &&
+              splitCount;
         if (iconRefs.current[index] && bounce) {
           createBounceAnimation(iconRefs.current[index]!);
         }
@@ -577,7 +584,7 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
                               ref={pageContainer}
                             >
                               {folderApps.length === 0 ? (
-                                <div className="text-[2.5vmin] leading-[2.5vmin] w-full h-full flex justify-center items-center text-muted">
+                                <div className="text-[2.5vmin] leading-[2.5vmin] w-full h-full flex justify-center items-center text-gray-200">
                                   暂无数据
                                 </div>
                               ) : (
@@ -610,7 +617,7 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
                                                 onClick={() => {
                                                   onAppClick(app);
                                                   createBounceAnimation(
-                                                    iconRefs.current[5]
+                                                    iconRefs.current[splitCount]
                                                   );
                                                 }}
                                                 className="cursor-pointer group hover:scale-110 transition-transform duration-200 flex flex-col justify-center items-center overflow-hidden"

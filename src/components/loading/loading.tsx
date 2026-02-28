@@ -10,17 +10,6 @@ export default function Loading() {
   const bongoCatDarkRef = useRef(null);
   const bongoCatLightRef = useRef(null);
   const containerRef = useRef(null);
-  //css
-  useEffect(() => {
-    document.getElementById("bongoCatCss")?.remove();
-    const link = document.createElement("link");
-    link.href = darkMode
-      ? "/assets/bongoCatDark.css"
-      : "/assets/bongoCatLight.css";
-    link.id = "bongoCatCss";
-    link.rel = "stylesheet";
-    document.head.append(link);
-  }, [darkMode]);
   // js
   useGSAP(
     () => {
@@ -139,7 +128,12 @@ export default function Loading() {
     { dependencies: [darkMode, soleSignal], scope: containerRef.current }
   );
   return (
-    <div className="w-full h-full bg-background" ref={containerRef}>
+    <div
+      className={`w-full h-full bg-background bongo-cat-container ${
+        darkMode ? "dark" : "light"
+      }`}
+      ref={containerRef}
+    >
       {darkMode ? (
         <div ref={bongoCatDarkRef} className="content">
           <div className="container">

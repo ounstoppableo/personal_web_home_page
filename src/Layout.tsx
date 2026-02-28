@@ -54,6 +54,7 @@ export default function Layout() {
   const appOpenMethod = useSelector(
     (state: any) => state.setting.appOpenMethod
   );
+  const [globalLoading, setGlobalLoading] = useState(true);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
@@ -263,8 +264,37 @@ export default function Layout() {
     };
   }, []);
 
+  useEffect(() => {
+    const imgs = document.querySelectorAll("img");
+    const promises = Array.from(imgs).map((img) => {
+      let _resolve;
+      const promise = new Promise((resolve) => {
+        _resolve = resolve;
+      });
+      if (img.complete) {
+        _resolve(1);
+      } else {
+        img.onload = () => {
+          _resolve(1);
+        };
+        img.onerror = () => {
+          _resolve(1);
+        };
+      }
+      return promise;
+    });
+    Promise.all(promises).then(() => {
+      setGlobalLoading(false);
+    });
+  }, []);
+
   return (
     <div className="w-dvw h-dvh relative select-none">
+      {globalLoading && (
+        <div className="absolute inset-0 z-[calc(var(--maxZIndex)+1)]">
+          <Loading></Loading>
+        </div>
+      )}
       <div className="absolute right-[8vmin] bottom-[6vmin]">
         <Settiing showSetting={showSetting}></Settiing>
       </div>
@@ -309,7 +339,7 @@ export default function Layout() {
             </div>
           </div>
         )}
-        <div className="dialogBottomBoundary flex flex-col justify-center items-center gap-[2vmin] select-none z-[var(--maxZIndex)]">
+        <div className="dialogBottomBoundary flex flex-col justify-center items-center gap-[2vmin] select-none z-[var(--maxZIndex-1)]">
           <MacOSDock
             initApps={initApps}
             onAppClick={onAppClick}

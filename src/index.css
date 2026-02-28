@@ -141,4 +141,5 @@
 body {
   background: transparent;
   overflow: hidden;
+  user-select: none;
 }
