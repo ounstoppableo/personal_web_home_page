@@ -378,7 +378,7 @@ export default function Layout() {
             </div>
           </div>
         )}
-        <div className="w-full flex justify-center items-center relative z-0 [@media(min-aspect-ratio:4/1)]:hidden">
+        <div className="w-full flex justify-center items-center relative z-0 [@media(min-aspect-ratio:4/1)]:hidden [@media(max-height:320px)]:hidden">
           <MusicPlayer musicList={musicList}></MusicPlayer>
         </div>
         <div className="dialogBottomBoundary flex flex-col justify-center items-center gap-[2vmin] select-none z-[calc(var(--maxZIndex))]">
