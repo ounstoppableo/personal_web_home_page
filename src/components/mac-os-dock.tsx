@@ -37,7 +37,7 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
       folder
         ? [
             ...initApps.slice(0, splitCount),
-            { id: "folder", name: "Folder", icon: "" },
+            { id: "folder", name: "文件夹", icon: "" },
           ]
         : initApps
     );

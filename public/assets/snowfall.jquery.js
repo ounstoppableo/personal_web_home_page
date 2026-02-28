@@ -175,6 +175,8 @@ window.Snowfall = function ($) {
           left: 0,
           fontSize: options.image ? 0 : this.size + "px",
           zIndex: options.flakeIndex,
+          pointerEvents: "none",
+          userSelect: "none",
         });
 
       if ($(element).get(0).tagName === $(document).get(0).tagName) {
@@ -289,7 +291,7 @@ window.Snowfall = function ($) {
                     curX,
                     curY + this.speed + this.size,
                     this.size,
-                    this.size,
+                    this.size
                   );
                   this.stopAnimation();
                 } else {
@@ -403,8 +405,8 @@ window.Snowfall = function ($) {
           random(0, elHeight),
           random(options.minSize * 100, options.maxSize * 100) / 100,
           random(options.minSpeed, options.maxSpeed),
-          options.noRotate,
-        ),
+          options.noRotate
+        )
       );
     }
 

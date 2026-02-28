@@ -49,6 +49,20 @@ export default function Layout() {
       url: import.meta.env.VITE_GITHUB_URL,
       appOpenMethod: "outer",
     },
+    {
+      id: "TikTok",
+      name: "抖音",
+      icon: "/tiktok.webp",
+      url: import.meta.env.VITE_TIKTOK_URL,
+      appOpenMethod: "outer",
+    },
+    {
+      id: "Telegram",
+      name: "Telegram",
+      icon: "/telegram.webp",
+      url: import.meta.env.VITE_TELEGRAM_URL,
+      appOpenMethod: "outer",
+    },
   ];
   const macOsDockRef = useRef(null);
   const appOpenMethod = useSelector(

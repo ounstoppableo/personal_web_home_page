@@ -10,6 +10,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
   Blocks,
@@ -207,6 +208,7 @@ export default function Settiing(props: any) {
                 <div className="flex-1">落花效果</div>
                 {floatOpenStatus && <Check className="h-4 w-4"></Check>}
               </DropdownMenuItem>
+              <DropdownMenuSeparator></DropdownMenuSeparator>
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger className="flex items-center gap-2 rounded-lg py-2 px-2 hover:bg-background/50">
                   <Blocks className="w-4 h-4" />
