@@ -138,10 +138,12 @@ const SafariDialog: React.FC<Safari_01Props> = ({
   });
 
   useEffect(() => {
-    gsap.set(dialogRef.current, {
-      x: innerWidth / 4,
-      y: innerHeight / 4,
-    });
+    defaultOpen &&
+      gsap.set(dialogRef.current, {
+        x: innerWidth / 4,
+        y: innerHeight / 4,
+        scale: 1,
+      });
     refreshOriginalInfo();
     widthTo.current = gsap.quickTo(dialogRef.current, "width", {
       duration: 0.1,
@@ -188,6 +190,9 @@ const SafariDialog: React.FC<Safari_01Props> = ({
         style={{
           display: open ? "flex" : "none",
           zIndex: fullscreen ? "calc(var(--maxZIndex) + 1)" : zIndex,
+          transform: `scale(0) translate(${innerWidth / 4}px,${
+            innerHeight / 4
+          }px)`,
         }}
         className={cn(
           "pointer-events-auto min-w-[50dvw] min-h-[50dvh] flex flex-col absolute top-0 left-0 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-muted shadow-md",

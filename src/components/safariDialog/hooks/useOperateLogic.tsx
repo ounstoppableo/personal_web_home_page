@@ -43,7 +43,9 @@ export default function useOperateLogic(props: any) {
   useEffect(() => {
     setOpen(typeof defaultOpen === "boolean" ? defaultOpen : false);
     setMinimize(typeof defaultMinimize === "boolean" ? defaultMinimize : false);
-    typeof defaultMinimize === "boolean" && handleMinimize(defaultMinimize);
+    requestAnimationFrame(() => {
+      typeof defaultMinimize === "boolean" && handleMinimize(defaultMinimize);
+    });
     setFullscreen(
       typeof defaultFullscreen === "boolean" ? defaultFullscreen : false
     );
