@@ -67,9 +67,9 @@ export default function MusicPlayer(props: any) {
       setCurrentLyric(
         lyricList.current[
           lyricList.current.findIndex(
-            (item) => item.seconds > audioRef.current.currentTime
+            (item) => item.seconds > audioRef.current.currentTime,
           ) - 1
-        ]?.lyric || ""
+        ]?.lyric || "",
       );
 
     !processMove.current &&
@@ -166,7 +166,7 @@ export default function MusicPlayer(props: any) {
             repeatDelay: 2,
             delay: 2,
             x: -scrollSpace,
-          }
+          },
         );
         return () => {
           gsap.killTweensOf(musicNameRef.current);
@@ -176,7 +176,7 @@ export default function MusicPlayer(props: any) {
     {
       dependencies: [musicList, currentIndex, currentLyric],
       scope: musicNameRef.current,
-    }
+    },
   );
   useGSAP(
     () => {
@@ -199,7 +199,7 @@ export default function MusicPlayer(props: any) {
             repeatDelay: 2,
             delay: 2,
             x: -scrollSpace,
-          }
+          },
         );
         return () => {
           gsap.killTweensOf(musicAuthorRef.current);
@@ -209,8 +209,115 @@ export default function MusicPlayer(props: any) {
     {
       dependencies: [musicList, currentIndex],
       scope: musicAuthorRef.current,
-    }
+    },
   );
+
+  // 音频绘制
+  const canvasRef = useRef(null);
+  const canvasCtx = useRef(null);
+  const analyser = useRef(null);
+  const audiaDataArray = useRef(null);
+  const animationFrameRef = useRef(null);
+  const frequencyCount = useRef(40);
+  const initAudioContext = () => {
+    if (analyser.current) return;
+    const audioCtx = new AudioContext();
+    const audioSource = audioCtx.createMediaElementSource(audioRef.current);
+    analyser.current = audioCtx.createAnalyser();
+    analyser.current.fftSize = 512;
+    audiaDataArray.current = new Uint8Array(analyser.current.frequencyBinCount);
+    audioSource.connect(analyser.current);
+    analyser.current.connect(audioCtx.destination);
+  };
+  const draw = useCallback(() => {
+    if (!canvasRef.current) return;
+    if (!canvasCtx.current) return;
+    const { width, height } = canvasRef.current;
+    const count = frequencyCount.current;
+    const mid = (count - 1) / 2;
+    const strokeGap = (width / count) * 0.3;
+    const strokeWidth = (width - strokeGap * (count - 1)) / count;
+    const maxStrokeHeight = (height / 2) * 0.5;
+
+    analyser.current.getByteFrequencyData(audiaDataArray.current);
+    if (audiaDataArray.current) {
+      canvasCtx.current.clearRect(0, 0, width, height);
+      let i = -1;
+      const usableBins = Math.floor(analyser.current.frequencyBinCount * 0.6);
+      const maxValue = Math.max(...audiaDataArray.current) || 1;
+      while (++i < count) {
+        // 中间高效果
+        const distance = Math.abs(i - mid) / mid;
+        const weight = 1 - distance;
+        const dataIndex = Math.floor((i / (count - 1)) * usableBins);
+        const normalized = audiaDataArray.current[dataIndex] / maxValue;
+        const strokeHeight = maxStrokeHeight * normalized * weight + 2;
+
+        // 绘制上半部分
+        const x0 = strokeWidth / 2 + i * strokeWidth + i * strokeGap;
+        const y0 = height / 2;
+        const x1 = strokeWidth / 2 + i * strokeWidth + i * strokeGap;
+        const y1 = height / 2 + strokeHeight;
+
+        // 绘制下半部分
+        const x2 = strokeWidth / 2 + i * strokeWidth + i * strokeGap;
+        const y2 = height / 2;
+        const x3 = strokeWidth / 2 + i * strokeWidth + i * strokeGap;
+        const y3 = height / 2 - strokeHeight;
+
+        // 绘制直线
+        canvasCtx.current.beginPath();
+        canvasCtx.current.moveTo(x0, y0);
+        canvasCtx.current.lineTo(x1, y1);
+        canvasCtx.current.moveTo(x2, y2);
+        canvasCtx.current.lineTo(x3, y3);
+        canvasCtx.current.lineCap = "round";
+        canvasCtx.current.lineJoin = "round";
+        canvasCtx.current.strokeStyle = "rgba(209, 213, 220, 0.8)";
+        canvasCtx.current.lineWidth = strokeWidth;
+        canvasCtx.current.stroke();
+        canvasCtx.current.closePath();
+      }
+    }
+    animationFrameRef.current = requestAnimationFrame(draw);
+  }, [playing]);
+  useEffect(() => {
+    if (canvasRef.current) {
+      canvasCtx.current = canvasRef.current?.getContext("2d");
+    }
+    const playCb = () => {
+      initAudioContext();
+      cancelAnimationFrame(animationFrameRef.current);
+      draw();
+    };
+    audioRef.current?.addEventListener("play", playCb);
+    return () => {
+      audioRef.current?.removeEventListener("play", playCb);
+    };
+  }, [playing]);
+  useEffect(() => {
+    const cb = () => {
+      if (innerWidth > 1680) {
+        frequencyCount.current = 30;
+      } else if (innerWidth > 1440) {
+        frequencyCount.current = 26;
+      } else if (innerWidth > 1280) {
+        frequencyCount.current = 22;
+      } else if (innerWidth > 1024) {
+        frequencyCount.current = 18;
+      } else if (innerWidth > 800) {
+        frequencyCount.current = 14;
+      } else {
+        frequencyCount.current = 10;
+      }
+    };
+    cb();
+    window.addEventListener("resize", cb);
+    return () => {
+      window.removeEventListener("resize", cb);
+      cancelAnimationFrame(animationFrameRef.current);
+    };
+  }, []);
 
   return (
     <>
@@ -242,6 +349,10 @@ export default function MusicPlayer(props: any) {
                 >
                   {musicList[currentIndex].musicAuthor}
                 </div>
+              </div>
+              <div className="flex-1 h-full"></div>
+              <div className="w-1/12 h-[12vmin]">
+                <canvas className="w-full h-full" ref={canvasRef}></canvas>
               </div>
             </div>
             <div className="w-full flex items-center text-[2.5vmin] leading-[2.5vmin]">
@@ -278,8 +389,8 @@ export default function MusicPlayer(props: any) {
                       finaltTime < 0
                         ? 0
                         : finaltTime > currentDuration
-                        ? currentDuration
-                        : finaltTime;
+                          ? currentDuration
+                          : finaltTime;
                     pointerDownInfo.current.finalScale =
                       _scale < 0 ? 0 : _scale > 1 ? 1 : _scale;
                     xTo.current(pointerDownInfo.current.finalScale);
@@ -296,8 +407,8 @@ export default function MusicPlayer(props: any) {
                       finaltTime < 0
                         ? 0
                         : finaltTime > currentDuration
-                        ? currentDuration
-                        : finaltTime;
+                          ? currentDuration
+                          : finaltTime;
                   }
                   if (!pointerDownInfo.current.finalScale) {
                     const finalScale =

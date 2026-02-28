@@ -22,6 +22,9 @@ export default defineConfig([
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
       "prefer-spread": "off",
+      "@typescript-eslint/no-unused-expressions": "off",
+      "no-useless-escape": "off",
+      "prefer-const": "off",
     },
   },
 ]);
