@@ -94,7 +94,11 @@ const SafariDialog: React.FC<Safari_01Props> = ({
     refreshContentSize,
     refreshOriginalInfo,
   });
-  useMoveLogic({
+  const {
+    mousedownCb: moveMousedownCb,
+    mousemoveCb: moveMousemoveCb,
+    mouseupCb: moveMouseupCb,
+  } = useMoveLogic({
     dialogRef,
     dialogHeaderRef,
     widthTo,
@@ -113,6 +117,16 @@ const SafariDialog: React.FC<Safari_01Props> = ({
     bottomLeftResizeOperator,
     topRightResizeOperator,
     bottomRightResizeOperator,
+    topMouseDown,
+    bottomMouseDown,
+    leftMouseDown,
+    rightMouseDown,
+    topLeftMouseDown,
+    topRightMouseDown,
+    bottomLeftMouseDown,
+    bottomRightMouseDown,
+    mousemoveCb: resizeMousemoveCb,
+    mouseupCb: resizeMouseupCb,
   } = useResizeLogic({
     dialogRef,
     widthTo,
@@ -186,35 +200,91 @@ const SafariDialog: React.FC<Safari_01Props> = ({
           <>
             <div
               ref={topResizeOperator}
+              onPointerDown={(e) => {
+                topMouseDown(e);
+                e.currentTarget.setPointerCapture(e.pointerId);
+              }}
+              onPointerMove={resizeMousemoveCb}
+              onPointerUp={resizeMouseupCb}
+              style={{ touchAction: "none" }}
               className="absolute top-0 -translate-y-1/2 h-2 w-full bg-transparent cursor-n-resize"
             ></div>
             <div
               ref={bottomResizeOperator}
+              onPointerDown={(e) => {
+                bottomMouseDown(e);
+                e.currentTarget.setPointerCapture(e.pointerId);
+              }}
+              onPointerMove={resizeMousemoveCb}
+              onPointerUp={resizeMouseupCb}
+              style={{ touchAction: "none" }}
               className="absolute bottom-0 translate-y-1/2 h-2 w-full bg-transparent cursor-s-resize"
             ></div>
             <div
               ref={leftResizeOperator}
+              onPointerDown={(e) => {
+                leftMouseDown(e);
+                e.currentTarget.setPointerCapture(e.pointerId);
+              }}
+              onPointerMove={resizeMousemoveCb}
+              onPointerUp={resizeMouseupCb}
+              style={{ touchAction: "none" }}
               className="absolute left-0 -translate-x-1/2 w-2 h-full bg-transparent cursor-w-resize"
             ></div>
             <div
               ref={rightResizeOperator}
+              onPointerDown={(e) => {
+                rightMouseDown(e);
+                e.currentTarget.setPointerCapture(e.pointerId);
+              }}
+              onPointerMove={resizeMousemoveCb}
+              onPointerUp={resizeMouseupCb}
+              style={{ touchAction: "none" }}
               className="absolute right-0 translate-x-1/2 w-2 h-full bg-transparent cursor-e-resize"
             ></div>
 
             <div
               ref={topLeftResizeOperator}
+              onPointerDown={(e) => {
+                topLeftMouseDown(e);
+                e.currentTarget.setPointerCapture(e.pointerId);
+              }}
+              onPointerMove={resizeMousemoveCb}
+              onPointerUp={resizeMouseupCb}
+              style={{ touchAction: "none" }}
               className="absolute top-0 left-0 -translate-1/2 h-2 w-2 bg-transparent cursor-nw-resize"
             ></div>
             <div
               ref={topRightResizeOperator}
+              onPointerDown={(e) => {
+                topRightMouseDown(e);
+                e.currentTarget.setPointerCapture(e.pointerId);
+              }}
+              onPointerMove={resizeMousemoveCb}
+              onPointerUp={resizeMouseupCb}
+              style={{ touchAction: "none" }}
               className="absolute top-0 right-0  translate-x-1/2 -translate-y-1/2 h-2 w-2 bg-transparent cursor-ne-resize"
             ></div>
             <div
               ref={bottomLeftResizeOperator}
+              onPointerDown={(e) => {
+                bottomLeftMouseDown(e);
+                e.currentTarget.setPointerCapture(e.pointerId);
+              }}
+              onPointerMove={resizeMousemoveCb}
+              onPointerUp={resizeMouseupCb}
+              style={{ touchAction: "none" }}
               className="absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 h-2 w-2 bg-transparent cursor-sw-resize"
             ></div>
             <div
               ref={bottomRightResizeOperator}
+              onPointerDown={(e) => {
+                bottomRightMouseDown(e);
+                e.currentTarget.setPointerCapture(e.pointerId);
+              }}
+              onPointerMove={resizeMousemoveCb}
+              onPointerUp={resizeMouseupCb}
+              style={{ touchAction: "none" }}
               className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 h-2 w-2 bg-transparent cursor-se-resize"
             ></div>
           </>
@@ -222,25 +292,30 @@ const SafariDialog: React.FC<Safari_01Props> = ({
         <div
           ref={dialogHeaderRef}
           onDoubleClick={handleFullscreen}
-          onMouseDown={() => {
+          onPointerDown={(e) => {
             handleHeaderMouseDownCb?.();
+            moveMousedownCb(e);
+            e.currentTarget.setPointerCapture(e.pointerId);
           }}
+          onPointerMove={moveMousemoveCb}
+          onPointerUp={moveMouseupCb}
+          style={{ touchAction: "none" }}
           className="rounded-[inherit] rounded-b-none overflow-hidden flex items-center justify-between px-4 py-2 bg-gray-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800"
         >
           <div className="flex items-center space-x-2">
             <span
               className="operator w-3 h-3 bg-red-400 rounded-full cursor-pointer"
-              onMouseDown={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
               onClick={handleClose}
             />
             <span
               className="operator w-3 h-3 bg-yellow-400 rounded-full cursor-pointer"
-              onMouseDown={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
               onClick={handleMinimize}
             />
             <span
               className="operator w-3 h-3 bg-green-500 rounded-full cursor-pointer"
-              onMouseDown={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
               onClick={handleFullscreen}
             />
           </div>

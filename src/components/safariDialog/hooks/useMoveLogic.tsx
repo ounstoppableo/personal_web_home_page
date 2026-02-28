@@ -18,8 +18,8 @@ export default function useMoveLogic(props: any) {
       dispatch(setMovingOrResizing(true));
       moveFlag.current = true;
       mousedownPosition.current = {
-        mouseX: e.x,
-        mouseY: e.y,
+        mouseX: e.clientX,
+        mouseY: e.clientY,
         x: +gsap.getProperty(dialogRef.current, "x"),
         y: +gsap.getProperty(dialogRef.current, "y"),
       };
@@ -36,9 +36,13 @@ export default function useMoveLogic(props: any) {
       if (fullscreen) return;
       if (moveFlag.current) {
         const targetX =
-          mousedownPosition.current.x + e.x - mousedownPosition.current.mouseX;
+          mousedownPosition.current.x +
+          e.clientX -
+          mousedownPosition.current.mouseX;
         const targetY =
-          mousedownPosition.current.y + e.y - mousedownPosition.current.mouseY;
+          mousedownPosition.current.y +
+          e.clientY -
+          mousedownPosition.current.mouseY;
         if (
           targetY > boundary.current.bottom ||
           targetY < boundary.current.top
@@ -73,14 +77,6 @@ export default function useMoveLogic(props: any) {
   }, [fullscreen]);
   useEffect(() => {
     dialogRect.current = dialogRef.current.getBoundingClientRect();
-    dialogHeaderRef.current.addEventListener("mousedown", mousedownCb);
-    window.addEventListener("mousemove", mousemoveCb);
-    window.addEventListener("mouseup", mouseupCb);
-    return () => {
-      dialogHeaderRef.current?.removeEventListener("mousedown", mousedownCb);
-      window.removeEventListener("mousemove", mousemoveCb);
-      window.removeEventListener("mouseup", mouseupCb);
-    };
   }, [fullscreen]);
-  return {};
+  return { mousedownCb, mousemoveCb, mouseupCb };
 }

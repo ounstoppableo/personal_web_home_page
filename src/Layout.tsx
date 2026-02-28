@@ -102,7 +102,6 @@ export default function Layout() {
     return () => clearInterval(interval);
   }, []);
 
-  const [showSetting] = useState<boolean>(true);
   const dialogContainerRef = useRef(null);
   const dialogRootContainerRef = useRef(null);
   const [dialogList, _setDialogList] = useState([]);
@@ -295,9 +294,11 @@ export default function Layout() {
           <Loading></Loading>
         </div>
       )}
-      <div className="absolute right-[8vmin] bottom-[6vmin]">
-        <Settiing showSetting={showSetting}></Settiing>
-      </div>
+      {!globalLoading && (
+        <div className="absolute right-[8vmin] bottom-[6vmin]">
+          <Settiing showSetting={!globalLoading}></Settiing>
+        </div>
+      )}
       {background && (
         <>
           <img
@@ -339,7 +340,7 @@ export default function Layout() {
             </div>
           </div>
         )}
-        <div className="dialogBottomBoundary flex flex-col justify-center items-center gap-[2vmin] select-none z-[var(--maxZIndex-1)]">
+        <div className="dialogBottomBoundary flex flex-col justify-center items-center gap-[2vmin] select-none z-[calc(var(--maxZIndex))]">
           <MacOSDock
             initApps={initApps}
             onAppClick={onAppClick}

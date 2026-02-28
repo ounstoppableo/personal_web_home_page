@@ -41,8 +41,8 @@ export default function useResizeLogic(props: any) {
     (e) => {
       diapatch(setMovingOrResizing(true));
       mousedownPosition.current = {
-        mouseX: e.x,
-        mouseY: e.y,
+        mouseX: e.clientX,
+        mouseY: e.clientY,
         width: +gsap.getProperty(dialogRef.current, "width"),
         height: +gsap.getProperty(dialogRef.current, "height"),
         x: +gsap.getProperty(dialogRef.current, "x"),
@@ -111,39 +111,23 @@ export default function useResizeLogic(props: any) {
     },
     [fullscreen]
   );
-  useEffect(() => {
-    if (fullscreen) return;
-    topResizeOperator.current.addEventListener("mousedown", topMouseDown);
-    bottomResizeOperator.current.addEventListener("mousedown", bottomMouseDown);
-    leftResizeOperator.current.addEventListener("mousedown", leftMouseDown);
-    rightResizeOperator.current.addEventListener("mousedown", rightMouseDown);
-    topLeftResizeOperator.current.addEventListener(
-      "mousedown",
-      topLeftMouseDown
-    );
-    topRightResizeOperator.current.addEventListener(
-      "mousedown",
-      topRightMouseDown
-    );
-    bottomLeftResizeOperator.current.addEventListener(
-      "mousedown",
-      bottomLeftMouseDown
-    );
-    bottomRightResizeOperator.current.addEventListener(
-      "mousedown",
-      bottomRightMouseDown
-    );
-    const mousemoveCb = (e) => {
+
+  const mousemoveCb = useCallback(
+    (e) => {
       if (resizeFlag.current) {
         const targetX =
-          mousedownPosition.current.x + e.x - mousedownPosition.current.mouseX;
+          mousedownPosition.current.x +
+          e.clientX -
+          mousedownPosition.current.mouseX;
         const targetY =
-          mousedownPosition.current.y + e.y - mousedownPosition.current.mouseY;
+          mousedownPosition.current.y +
+          e.clientY -
+          mousedownPosition.current.mouseY;
 
         const topCb = () => {
           const targetHeight =
             mousedownPosition.current.height -
-            (e.y - mousedownPosition.current.mouseY);
+            (e.clientY - mousedownPosition.current.mouseY);
           if (targetHeight < basicInfo.current.innerHeight / 2) return;
           if (targetY < 0) {
             yTo.current(0);
@@ -156,7 +140,7 @@ export default function useResizeLogic(props: any) {
         const bottomCb = () => {
           const targetHeight =
             mousedownPosition.current.height +
-            e.y -
+            e.clientY -
             mousedownPosition.current.mouseY;
           if (targetHeight < basicInfo.current.innerHeight / 2) return;
           if (
@@ -173,7 +157,7 @@ export default function useResizeLogic(props: any) {
         const leftCb = () => {
           const targetWidth =
             mousedownPosition.current.width -
-            (e.x - mousedownPosition.current.mouseX);
+            (e.clientX - mousedownPosition.current.mouseX);
           if (targetWidth < basicInfo.current.innerWidth / 2) return;
           if (targetX < 0) {
             xTo.current(0);
@@ -186,7 +170,7 @@ export default function useResizeLogic(props: any) {
         const rightCb = () => {
           const targetWidth =
             mousedownPosition.current.width +
-            e.x -
+            e.clientX -
             mousedownPosition.current.mouseX;
           if (targetWidth < basicInfo.current.innerWidth / 2) return;
           if (
@@ -231,47 +215,14 @@ export default function useResizeLogic(props: any) {
             break;
         }
       }
-    };
-    const mouseupCb = () => {
-      resizeFlag.current = "";
-      diapatch(setMovingOrResizing(false));
-    };
-    window.addEventListener("mousemove", mousemoveCb);
-    window.addEventListener("mouseup", mouseupCb);
-    return () => {
-      window.removeEventListener("mousemove", mousemoveCb);
-      window.removeEventListener("mouseup", mouseupCb);
-      topResizeOperator.current?.removeEventListener("mousedown", topMouseDown);
-      bottomResizeOperator.current?.removeEventListener(
-        "mousedown",
-        bottomMouseDown
-      );
-      leftResizeOperator.current?.removeEventListener(
-        "mousedown",
-        leftMouseDown
-      );
-      rightResizeOperator.current?.removeEventListener(
-        "mousedown",
-        rightMouseDown
-      );
-      topLeftResizeOperator.current?.removeEventListener(
-        "mousedown",
-        topLeftMouseDown
-      );
-      topRightResizeOperator.current?.removeEventListener(
-        "mousedown",
-        topRightMouseDown
-      );
-      bottomLeftResizeOperator.current?.removeEventListener(
-        "mousedown",
-        bottomLeftMouseDown
-      );
-      bottomRightResizeOperator.current?.removeEventListener(
-        "mousedown",
-        bottomRightMouseDown
-      );
-    };
+    },
+    [fullscreen]
+  );
+  const mouseupCb = useCallback(() => {
+    resizeFlag.current = "";
+    diapatch(setMovingOrResizing(false));
   }, [fullscreen]);
+
   return {
     topResizeOperator,
     leftResizeOperator,
@@ -281,5 +232,15 @@ export default function useResizeLogic(props: any) {
     bottomLeftResizeOperator,
     topRightResizeOperator,
     bottomRightResizeOperator,
+    topMouseDown,
+    bottomMouseDown,
+    leftMouseDown,
+    rightMouseDown,
+    topLeftMouseDown,
+    topRightMouseDown,
+    bottomLeftMouseDown,
+    bottomRightMouseDown,
+    mousemoveCb,
+    mouseupCb,
   };
 }

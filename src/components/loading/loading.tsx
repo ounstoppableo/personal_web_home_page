@@ -130,11 +130,11 @@ export default function Loading() {
   return (
     <div
       className={`w-full h-full bg-background bongo-cat-container ${
-        darkMode ? "dark" : "light"
+        localStorage.getItem("darkMode") === "true" ? "dark" : "light"
       }`}
       ref={containerRef}
     >
-      {darkMode ? (
+      {localStorage.getItem("darkMode") === "true" ? (
         <div ref={bongoCatDarkRef} className="content">
           <div className="container">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 783.55 354.91">
