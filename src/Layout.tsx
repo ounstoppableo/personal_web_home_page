@@ -395,7 +395,7 @@ export default function Layout() {
         </div>
         <div
           ref={dialogRootContainerRef}
-          className="absolute inset-0 pointer-events-none z-10"
+          className="absolute inset-0 pointer-events-none"
         >
           {dialogList.map((item, index) => (
             <SafariDialog
