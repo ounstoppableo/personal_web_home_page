@@ -7,6 +7,10 @@ import { FaPlay, FaPause } from "react-icons/fa";
 import { IoPlayBack, IoPlayForward } from "react-icons/io5";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { FaRandom } from "react-icons/fa";
+import { FaArrowRightArrowLeft } from "react-icons/fa6";
+import { motion } from "framer-motion";
+
 dayjs.extend(duration);
 
 function parseLRC(text) {
@@ -61,46 +65,6 @@ export default function MusicPlayer(props: any) {
     return `${mm}:${ss}`;
   }
   const [currentTime, setCurrentTime] = useState(0);
-  const playingCb = useCallback(() => {
-    setCurrentTime(audioRef.current.currentTime);
-    lyricList.current.length !== 0 &&
-      setCurrentLyric(
-        lyricList.current[
-          lyricList.current.findIndex(
-            (item) => item.seconds > audioRef.current.currentTime,
-          ) - 1
-        ]?.lyric || "",
-      );
-
-    !processMove.current &&
-      xTo.current(audioRef.current.currentTime / currentDuration);
-  }, [playing, musicList, currentIndex, currentDuration]);
-  const endedCb = useCallback(() => {
-    setPlaying(false);
-  }, [playing, musicList, currentIndex, currentDuration]);
-  const loadedMetaDataCb = useCallback(() => {
-    setCurrentDuration(audioRef.current.duration);
-  }, [playing, musicList, currentIndex, currentDuration]);
-  const handlePlay = () => {
-    setPlaying(!playing);
-    if (playing) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play();
-    }
-  };
-  useEffect(() => {
-    audioRef.current?.addEventListener("ended", endedCb);
-    if (playing) {
-      audioRef.current?.addEventListener("timeupdate", playingCb);
-    }
-    audioRef.current?.addEventListener("loadedmetadata", loadedMetaDataCb);
-    return () => {
-      audioRef.current?.removeEventListener("timeupdate", playingCb);
-      audioRef.current?.removeEventListener("ended", endedCb);
-      audioRef.current?.removeEventListener("loadedmetadata", loadedMetaDataCb);
-    };
-  }, [playing, musicList, currentIndex, currentDuration]);
 
   // 进度条控制
   const processMove = useRef(false);
@@ -121,14 +85,7 @@ export default function MusicPlayer(props: any) {
     });
   }, [playing, musicList, currentIndex, currentDuration]);
 
-  const prev = useCallback(() => {
-    xTo.current(0);
-    setCurrentIndex((musicList.length + currentIndex - 1) % musicList.length);
-  }, [playing, musicList, currentIndex, currentDuration]);
-  const next = useCallback(() => {
-    xTo.current(0);
-    setCurrentIndex((currentIndex + 1) % musicList.length);
-  }, [playing, musicList, currentIndex, currentDuration]);
+  // 处理歌词
   useEffect(() => {
     if (playing) {
       audioRef.current.play();
@@ -147,31 +104,36 @@ export default function MusicPlayer(props: any) {
   const musicAuthorRef = useRef(null);
   useGSAP(
     () => {
-      if (musicNameRef.current) {
-        gsap.killTweensOf(musicNameRef.current);
-        const rect = musicNameRef.current.getBoundingClientRect();
-        const scrollSpace =
-          musicNameRef.current.offsetWidth -
-          musicInfoContainerRef.current.offsetWidth;
-        musicNameRef.current.scrollLeft = 0;
-        gsap.fromTo(
-          musicNameRef.current,
-          {
-            x: 0,
-          },
-          {
-            repeat: -1,
-            duration: rect.width / 60,
-            ease: "linear",
-            repeatDelay: 2,
-            delay: 2,
-            x: -scrollSpace,
-          },
-        );
-        return () => {
+      const infoScrollCb = () => {
+        if (musicNameRef.current) {
           gsap.killTweensOf(musicNameRef.current);
-        };
-      }
+          const rect = musicNameRef.current.getBoundingClientRect();
+          const scrollSpace =
+            musicNameRef.current.offsetWidth -
+            musicInfoContainerRef.current.offsetWidth;
+          musicNameRef.current.scrollLeft = 0;
+          gsap.fromTo(
+            musicNameRef.current,
+            {
+              x: 0,
+            },
+            {
+              repeat: -1,
+              duration: rect.width / 60,
+              ease: "linear",
+              repeatDelay: 2,
+              delay: 2,
+              x: -scrollSpace,
+            },
+          );
+        }
+      };
+      infoScrollCb();
+      window.addEventListener("resize", infoScrollCb);
+      return () => {
+        gsap.killTweensOf(musicNameRef.current);
+        window.removeEventListener("resize", infoScrollCb);
+      };
     },
     {
       dependencies: [musicList, currentIndex, currentLyric],
@@ -180,31 +142,36 @@ export default function MusicPlayer(props: any) {
   );
   useGSAP(
     () => {
-      if (musicAuthorRef.current) {
-        gsap.killTweensOf(musicAuthorRef.current);
-        const rect = musicAuthorRef.current.getBoundingClientRect();
-        const scrollSpace =
-          musicAuthorRef.current.offsetWidth -
-          musicInfoContainerRef.current.offsetWidth;
-        musicAuthorRef.current.scrollLeft = 0;
-        gsap.fromTo(
-          musicAuthorRef.current,
-          {
-            x: 0,
-          },
-          {
-            repeat: -1,
-            duration: rect.width / 60,
-            ease: "linear",
-            repeatDelay: 2,
-            delay: 2,
-            x: -scrollSpace,
-          },
-        );
-        return () => {
+      const infoScrollCb = () => {
+        if (musicAuthorRef.current) {
           gsap.killTweensOf(musicAuthorRef.current);
-        };
-      }
+          const rect = musicAuthorRef.current.getBoundingClientRect();
+          const scrollSpace =
+            musicAuthorRef.current.offsetWidth -
+            musicInfoContainerRef.current.offsetWidth;
+          musicAuthorRef.current.scrollLeft = 0;
+          gsap.fromTo(
+            musicAuthorRef.current,
+            {
+              x: 0,
+            },
+            {
+              repeat: -1,
+              duration: rect.width / 60,
+              ease: "linear",
+              repeatDelay: 2,
+              delay: 2,
+              x: -scrollSpace,
+            },
+          );
+        }
+      };
+      infoScrollCb();
+      window.addEventListener("resize", infoScrollCb);
+      return () => {
+        gsap.killTweensOf(musicNameRef.current);
+        window.removeEventListener("resize", infoScrollCb);
+      };
     },
     {
       dependencies: [musicList, currentIndex],
@@ -279,8 +246,9 @@ export default function MusicPlayer(props: any) {
         canvasCtx.current.closePath();
       }
     }
+    // eslint-disable-next-line react-hooks/immutability
     animationFrameRef.current = requestAnimationFrame(draw);
-  }, [playing]);
+  }, []);
   useEffect(() => {
     if (canvasRef.current) {
       canvasCtx.current = canvasRef.current?.getContext("2d");
@@ -291,10 +259,11 @@ export default function MusicPlayer(props: any) {
       draw();
     };
     audioRef.current?.addEventListener("play", playCb);
+    const _audioRef = audioRef.current;
     return () => {
-      audioRef.current?.removeEventListener("play", playCb);
+      _audioRef?.removeEventListener("play", playCb);
     };
-  }, [playing]);
+  }, [draw, playing, musicList]);
   useEffect(() => {
     const cb = () => {
       if (innerWidth > 1680) {
@@ -319,11 +288,83 @@ export default function MusicPlayer(props: any) {
     };
   }, []);
 
+  // 控制播放模式
+  const [playMode, setPlayMode] = useState<"order" | "random">("order");
+  const prev = useCallback(() => {
+    xTo.current(0);
+    setCurrentIndex((musicList.length + currentIndex - 1) % musicList.length);
+  }, [musicList, currentIndex]);
+  const next = useCallback(() => {
+    xTo.current(0);
+    if (playMode === "order") {
+      setCurrentIndex((currentIndex + 1) % musicList.length);
+    }
+    if (playMode === "random") {
+      setCurrentIndex(Math.floor(Math.random() * musicList.length));
+    }
+  }, [musicList, currentIndex, playMode]);
+  const endedCb = useCallback(() => {
+    next();
+  }, [next]);
+  useEffect(() => {
+    audioRef.current?.addEventListener("ended", endedCb);
+    const _audioRef = audioRef.current;
+    return () => {
+      _audioRef?.removeEventListener("ended", endedCb);
+    };
+  }, [playing, musicList, currentIndex, currentDuration, playMode, endedCb]);
+
+  // 其他事件监听
+  const handlePlay = () => {
+    setPlaying(!playing);
+    if (playing) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+  };
+  const playingCb = useCallback(() => {
+    setCurrentTime(audioRef.current.currentTime);
+    lyricList.current.length !== 0 &&
+      setCurrentLyric(
+        lyricList.current[
+          lyricList.current.findIndex(
+            (item) => item.seconds > audioRef.current.currentTime,
+          ) - 1
+        ]?.lyric || "",
+      );
+
+    !processMove.current &&
+      xTo.current(audioRef.current.currentTime / currentDuration);
+  }, [currentDuration]);
+  const loadedMetaDataCb = useCallback(() => {
+    setCurrentDuration(audioRef.current.duration);
+  }, []);
+  useEffect(() => {
+    if (playing) {
+      audioRef.current?.addEventListener("timeupdate", playingCb);
+    }
+    audioRef.current?.addEventListener("loadedmetadata", loadedMetaDataCb);
+    const _audioRef = audioRef.current;
+    return () => {
+      _audioRef?.removeEventListener("timeupdate", playingCb);
+      _audioRef?.removeEventListener("loadedmetadata", loadedMetaDataCb);
+    };
+  }, [
+    playing,
+    musicList,
+    currentIndex,
+    currentDuration,
+    playMode,
+    loadedMetaDataCb,
+    playingCb,
+  ]);
+
   return (
     <>
       {musicList.length !== 0 && (
         <LiquidGlassCard>
-          <div className="w-full h-full py-[3vmin] px-[4vmin] flex flex-col gap-[2vmin] text-white">
+          <div className="w-full h-full py-[4vmin] px-[6vmin] flex flex-col gap-[2vmin] text-white">
             <div className="flex gap-[2vmin] items-center">
               <div className="w-[12vmin] h-[12vmin] rounded-lg overflow-hidden">
                 <img
@@ -350,7 +391,6 @@ export default function MusicPlayer(props: any) {
                   {musicList[currentIndex].musicAuthor}
                 </div>
               </div>
-              <div className="flex-1 h-full"></div>
               <div className="w-1/12 h-[12vmin]">
                 <canvas className="w-full h-full" ref={canvasRef}></canvas>
               </div>
@@ -431,32 +471,93 @@ export default function MusicPlayer(props: any) {
                 {format(currentDuration)}
               </div>
             </div>
-            <div className="w-full flex justify-center items-center gap-[8vmin]">
-              <Button
-                variant="ghost"
-                className="rounded-full w-[8vmin] h-[8vmin] cursor-pointer hover:bg-black/20 flex justify-center items-center"
-                onClick={prev}
+            <div className="w-full flex justify-center items-center gap-[8vmin] relative">
+              <motion.div
+                whileTap={{ scale: 0.6 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 400,
+                  damping: 18,
+                }}
+                className="w-fit h-fit"
               >
-                <IoPlayBack className="size-[4vmin] text-white" />
-              </Button>
-              <Button
-                variant="ghost"
-                className="rounded-full w-[8vmin] h-[8vmin] cursor-pointer hover:bg-black/20 flex justify-center items-center"
-                onClick={handlePlay}
+                <Button
+                  variant="ghost"
+                  className="rounded-full w-[8vmin] h-[8vmin] cursor-pointer hover:bg-black/20 flex justify-center items-center"
+                  onPointerDown={prev}
+                >
+                  <IoPlayBack className="size-[4vmin] text-white" />
+                </Button>
+              </motion.div>
+              <motion.div
+                whileTap={{ scale: 0.6 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 400,
+                  damping: 18,
+                }}
+                className="w-fit h-fit"
               >
-                {playing ? (
-                  <FaPause className="size-[4vmin] text-white" />
-                ) : (
-                  <FaPlay className="size-[4vmin] text-white" />
-                )}
-              </Button>
-              <Button
-                variant="ghost"
-                className="rounded-full w-[8vmin] h-[8vmin] cursor-pointer hover:bg-black/20 flex justify-center items-center"
-                onClick={next}
+                <Button
+                  variant="ghost"
+                  className="rounded-full w-[8vmin] h-[8vmin] cursor-pointer hover:bg-black/20 flex justify-center items-center"
+                  onPointerDown={handlePlay}
+                >
+                  {playing ? (
+                    <FaPause className="size-[4vmin] text-white" />
+                  ) : (
+                    <FaPlay className="size-[4vmin] text-white" />
+                  )}
+                </Button>
+              </motion.div>
+              <motion.div
+                whileTap={{ scale: 0.6 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 400,
+                  damping: 18,
+                }}
+                className="w-fit h-fit"
               >
-                <IoPlayForward className="size-[4vmin] text-white" />
-              </Button>
+                <Button
+                  variant="ghost"
+                  className="rounded-full w-[8vmin] h-[8vmin] cursor-pointer hover:bg-black/20 flex justify-center items-center"
+                  onPointerDown={next}
+                >
+                  <IoPlayForward className="size-[4vmin] text-white" />
+                </Button>
+              </motion.div>
+
+              <div className="absolute right-[-2vmin] top-0">
+                <motion.div
+                  whileTap={{ scale: 0.6 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 18,
+                  }}
+                  className="w-fit h-fit"
+                >
+                  <Button
+                    variant="ghost"
+                    className="rounded-full w-[8vmin] h-[8vmin] cursor-pointer hover:bg-black/20 flex justify-center items-center"
+                    onPointerDown={() => {
+                      if (playMode === "order") {
+                        setPlayMode("random");
+                      }
+                      if (playMode === "random") {
+                        setPlayMode("order");
+                      }
+                    }}
+                  >
+                    {playMode === "order" ? (
+                      <FaArrowRightArrowLeft className="size-[4vmin] text-white" />
+                    ) : (
+                      <FaRandom className="size-[4vmin] text-white" />
+                    )}
+                  </Button>
+                </motion.div>
+              </div>
             </div>
           </div>
           <audio
