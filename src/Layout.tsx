@@ -15,6 +15,7 @@ import {
   sendMessageToIframe,
 } from "./utils/iframeCommunication/client";
 import Loading from "./components/loading/loading";
+import MusicPlayer from "./components/musicPlayer";
 export default function Layout() {
   const [background, setBackground] = useState<string>("");
   const initApps = [
@@ -68,6 +69,7 @@ export default function Layout() {
   const appOpenMethod = useSelector(
     (state: any) => state.setting.appOpenMethod
   );
+  const [musicList, setMusicList] = useState([]);
   const [globalLoading, setGlobalLoading] = useState(true);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -88,6 +90,11 @@ export default function Layout() {
     }).then((res: CommonResponse) => {
       if (res.code === codeMap.success) {
         setBackground(res.data[0]?.sourcePath);
+      }
+    });
+    request("/api/getMusicInfo").then((res) => {
+      if ((res as any).code === 200) {
+        setMusicList((res as any).result);
       }
     });
   }, []);
@@ -323,11 +330,11 @@ export default function Layout() {
         </>
       )}
       <div
-        className="w-full h-full overflow-hidden flex justify-between items-center flex-col px-[6vmin] pt-[8vmin] pb-[2vmin]"
+        className="w-full h-full overflow-hidden flex justify-between items-center flex-col px-[6vmin] p-[2vmin] gap-[4vmin]"
         ref={dialogContainerRef}
       >
         {timeInfo.default && (
-          <div className="select-none flex flex-col items-center text-shadow-lg gap-[1vmin] mt-[6vmin]">
+          <div className="select-none flex flex-col items-center text-shadow-lg gap-[1vmin] mt-[10vmin]">
             <div className="text-[12vmin] leading-[12vmin] font-extrabold text-white text-center flex items-center gap-[1vmin]">
               <div>
                 {+dayjs(timeInfo.default).format("HH") > 12
@@ -354,6 +361,9 @@ export default function Layout() {
             </div>
           </div>
         )}
+        <div className="w-full flex justify-center items-center px-[8vmin]">
+          <MusicPlayer musicList={musicList}></MusicPlayer>
+        </div>
         <div className="dialogBottomBoundary flex flex-col justify-center items-center gap-[2vmin] select-none z-[calc(var(--maxZIndex))]">
           <MacOSDock
             initApps={initApps}

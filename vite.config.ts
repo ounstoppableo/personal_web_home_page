@@ -15,6 +15,14 @@ export default defineConfig({
   ],
   server: {
     proxy: {
+      "/api": {
+        target: "https://www.unstoppable840.cn",
+        changeOrigin: true,
+      },
+      "/images": {
+        target: "https://www.unstoppable840.cn",
+        changeOrigin: true,
+      },
       "/apiFromMedia": {
         target: "https://www.unstoppable840.cn:5335/api",
         rewrite: (path) => path.replace(/^\/apiFromMedia/, ""),
