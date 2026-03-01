@@ -22,7 +22,7 @@ export default function Layout() {
   const { message } = App.useApp();
   useEffect(() => {
     initMessageTool(message);
-  }, []);
+  }, [message]);
   const initApps = [
     {
       id: "Blog",
@@ -72,7 +72,7 @@ export default function Layout() {
   ];
   const macOsDockRef = useRef(null);
   const appOpenMethod = useSelector(
-    (state: any) => state.setting.appOpenMethod
+    (state: any) => state.setting.appOpenMethod,
   );
   const [musicList, setMusicList] = useState([]);
   const [globalLoading, setGlobalLoading] = useState(true);
@@ -119,7 +119,7 @@ export default function Layout() {
     lunar: solarLunar.solar2lunar(
       dayjs(now).format("YYYY"),
       dayjs(now).format("MM"),
-      dayjs(now).format("DD")
+      dayjs(now).format("DD"),
     ),
   });
   const updateTimeInfo = () => {
@@ -129,7 +129,7 @@ export default function Layout() {
       lunar: solarLunar.solar2lunar(
         dayjs(now).format("YYYY"),
         dayjs(now).format("MM"),
-        dayjs(now).format("DD")
+        dayjs(now).format("DD"),
       ),
     });
   };
@@ -235,7 +235,7 @@ export default function Layout() {
     };
     const loginExpireListener = {
       tag: "loginExpire",
-      cb: (res) => {
+      cb: () => {
         localStorage.setItem("token", "");
       },
     };
@@ -274,30 +274,30 @@ export default function Layout() {
     return () => {
       iframeCommunicationListener.splice(
         iframeCommunicationListener.findIndex(
-          (listener) => listener === openAppListener
+          (listener) => listener === openAppListener,
         ),
-        1
+        1,
       );
       iframeCommunicationListener.splice(
         iframeCommunicationListener.findIndex(
-          (listener) => listener === loginSuccessListener
+          (listener) => listener === loginSuccessListener,
         ),
-        1
+        1,
       );
       iframeCommunicationListener.splice(
         iframeCommunicationListener.findIndex(
-          (listener) => listener === loginExpireListener
+          (listener) => listener === loginExpireListener,
         ),
-        1
+        1,
       );
       iframeCommunicationListener.splice(
         iframeCommunicationListener.findIndex(
-          (listener) => listener === handshakeListener
+          (listener) => listener === handshakeListener,
         ),
-        1
+        1,
       );
     };
-  }, []);
+  }, [appOpenMethod]);
 
   useEffect(() => {
     if (background) {
@@ -378,8 +378,10 @@ export default function Layout() {
             </div>
           </div>
         )}
-        <div className="w-full flex justify-center items-center relative z-0 [@media(min-aspect-ratio:4/1)]:hidden [@media(max-height:320px)]:hidden">
-          <MusicPlayer musicList={musicList}></MusicPlayer>
+        <div className="w-full gap-[8vmin] flex justify-center items-center relative z-0 [@media(min-aspect-ratio:4/1)]:hidden [@media(max-height:320px)]:hidden">
+          <div className="flex-1">
+            <MusicPlayer musicList={musicList}></MusicPlayer>
+          </div>
         </div>
         <div className="dialogBottomBoundary flex flex-col justify-center items-center gap-[2vmin] select-none z-[calc(var(--maxZIndex))]">
           <MacOSDock
@@ -403,7 +405,7 @@ export default function Layout() {
               defaultMinimize={item.minimize}
               handleHeaderMouseDownCb={() => {
                 const index = dialogListSync.current.findIndex(
-                  (_item) => _item.id === item.id
+                  (_item) => _item.id === item.id,
                 );
                 setDialogList([
                   ...dialogListSync.current
@@ -415,13 +417,13 @@ export default function Layout() {
                     .map((item) => ({ ...item, zIndex: 1 })),
                 ]);
               }}
-              handleOpenChange={(openStatus) => {
+              handleOpenChange={() => {
                 macOsDockRef.current.handleAppClick(item.id, false);
                 deleteIframe(`${item.id}_iframe`);
               }}
               handleMinimizeChange={(minimizeStatus) => {
                 const index = dialogListSync.current.findIndex(
-                  (_item) => _item.id === item.id
+                  (_item) => _item.id === item.id,
                 );
                 setDialogList([
                   ...dialogListSync.current.slice(0, index),
@@ -431,7 +433,7 @@ export default function Layout() {
                   },
                   ...dialogListSync.current.slice(
                     index + 1,
-                    dialogListSync.current.length
+                    dialogListSync.current.length,
                   ),
                 ]);
                 macOsDockRef.current.handleAppClick(item.id);
@@ -442,7 +444,7 @@ export default function Layout() {
               minimizeTargetSelector={item.minimizeTargetSelector}
               onClose={() => {
                 setDialogList(
-                  dialogList.filter((_item) => _item.id !== item.id)
+                  dialogList.filter((_item) => _item.id !== item.id),
                 );
               }}
             >

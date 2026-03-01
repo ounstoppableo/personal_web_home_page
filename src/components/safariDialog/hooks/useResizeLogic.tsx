@@ -1,11 +1,11 @@
+/* eslint-disable react-hooks/preserve-manual-memoization */
 import { setMovingOrResizing } from "@/store/dialog/dialogSlice";
 import gsap from "gsap";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useRef } from "react";
 import { useDispatch } from "react-redux";
 
 export default function useResizeLogic(props: any) {
-  const { dialogRef, widthTo, heightTo, xTo, yTo, fullscreen, originalInfo } =
-    props;
+  const { dialogRef, widthTo, heightTo, xTo, yTo, fullscreen } = props;
   const topResizeOperator = useRef(null);
   const leftResizeOperator = useRef(null);
   const rightResizeOperator = useRef(null);
@@ -53,67 +53,67 @@ export default function useResizeLogic(props: any) {
         innerWidth: innerWidth,
       };
     },
-    [fullscreen]
+    [fullscreen],
   );
   const topMouseDown = useCallback(
     (e) => {
       resizeFlag.current = "top";
       mousedownBasic(e);
     },
-    [fullscreen]
+    [fullscreen],
   );
   const bottomMouseDown = useCallback(
     (e) => {
       resizeFlag.current = "bottom";
       mousedownBasic(e);
     },
-    [fullscreen]
+    [fullscreen],
   );
   const leftMouseDown = useCallback(
     (e) => {
       resizeFlag.current = "left";
       mousedownBasic(e);
     },
-    [fullscreen]
+    [fullscreen],
   );
   const rightMouseDown = useCallback(
     (e) => {
       resizeFlag.current = "right";
       mousedownBasic(e);
     },
-    [fullscreen]
+    [fullscreen],
   );
   const topLeftMouseDown = useCallback(
     (e) => {
       resizeFlag.current = "topLeft";
       mousedownBasic(e);
     },
-    [fullscreen]
+    [fullscreen],
   );
   const topRightMouseDown = useCallback(
     (e) => {
       resizeFlag.current = "topRight";
       mousedownBasic(e);
     },
-    [fullscreen]
+    [fullscreen],
   );
   const bottomLeftMouseDown = useCallback(
     (e) => {
       resizeFlag.current = "bottomLeft";
       mousedownBasic(e);
     },
-    [fullscreen]
+    [fullscreen],
   );
   const bottomRightMouseDown = useCallback(
     (e) => {
       resizeFlag.current = "bottomRight";
       mousedownBasic(e);
     },
-    [fullscreen]
+    [fullscreen],
   );
 
   const mousemoveCb = useCallback(
-    (e) => {
+    (e: any) => {
       if (resizeFlag.current) {
         const targetX =
           mousedownPosition.current.x +
@@ -148,7 +148,7 @@ export default function useResizeLogic(props: any) {
             basicInfo.current.innerHeight
           ) {
             heightTo.current(
-              basicInfo.current.innerHeight - mousedownPosition.current.y
+              basicInfo.current.innerHeight - mousedownPosition.current.y,
             );
           } else {
             heightTo.current(targetHeight);
@@ -178,7 +178,7 @@ export default function useResizeLogic(props: any) {
             basicInfo.current.innerWidth
           ) {
             widthTo.current(
-              basicInfo.current.innerWidth - mousedownPosition.current.x
+              basicInfo.current.innerWidth - mousedownPosition.current.x,
             );
           } else {
             widthTo.current(targetWidth);
@@ -216,7 +216,7 @@ export default function useResizeLogic(props: any) {
         }
       }
     },
-    [fullscreen]
+    [fullscreen],
   );
   const mouseupCb = useCallback(() => {
     resizeFlag.current = "";

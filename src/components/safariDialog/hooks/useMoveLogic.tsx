@@ -1,11 +1,11 @@
+/* eslint-disable react-hooks/preserve-manual-memoization */
 import { setMovingOrResizing } from "@/store/dialog/dialogSlice";
 import gsap from "gsap";
 import { useCallback, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 
 export default function useMoveLogic(props: any) {
-  const { dialogRef, dialogHeaderRef, xTo, yTo, fullscreen, originalInfo } =
-    props;
+  const { dialogRef, dialogHeaderRef, xTo, yTo, fullscreen } = props;
   const moveFlag = useRef<boolean>(false);
   const mousedownPosition = useRef({ mouseX: 0, mouseY: 0, x: 0, y: 0 });
   const boundary = useRef({ top: 0, left: 0, right: 0, bottom: 0 });
@@ -29,7 +29,7 @@ export default function useMoveLogic(props: any) {
           .y - dialogHeaderRef.current.getBoundingClientRect().height || 0;
       boundary.current.right = innerWidth - dialogRect.current.width;
     },
-    [fullscreen]
+    [fullscreen],
   );
   const mousemoveCb = useCallback(
     (e: any) => {
@@ -69,7 +69,7 @@ export default function useMoveLogic(props: any) {
         }
       }
     },
-    [fullscreen]
+    [fullscreen],
   );
   const mouseupCb = useCallback(() => {
     moveFlag.current = false;

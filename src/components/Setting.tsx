@@ -16,10 +16,7 @@ import {
   Blocks,
   Bubbles,
   Check,
-  IndianRupee,
-  Menu,
   Moon,
-  Outdent,
   Palette,
   PanelsTopLeft,
   Settings,
@@ -94,7 +91,7 @@ export default function Settiing(props: any) {
   }, []);
 
   const appOpenMethod = useSelector(
-    (state: any) => state.setting.appOpenMethod
+    (state: any) => state.setting.appOpenMethod,
   );
   const dispatch = useDispatch();
   useEffect(() => {
@@ -102,7 +99,7 @@ export default function Settiing(props: any) {
   }, []);
 
   const [floatOpenStatus, setFloatOpenStatus] = useState<boolean>(
-    localStorage.getItem("floatClose") ? false : true
+    localStorage.getItem("floatClose") ? false : true,
   );
 
   const checkSeason = () => {
@@ -265,7 +262,7 @@ export default function Settiing(props: any) {
                         onClick={() => {
                           localStorage.setItem(
                             "darkMode",
-                            JSON.stringify(false)
+                            JSON.stringify(false),
                           );
                           dispatch(setDarkMode(false));
                         }}
@@ -280,7 +277,7 @@ export default function Settiing(props: any) {
                         onClick={() => {
                           localStorage.setItem(
                             "darkMode",
-                            JSON.stringify(true)
+                            JSON.stringify(true),
                           );
                           dispatch(setDarkMode(true));
                         }}

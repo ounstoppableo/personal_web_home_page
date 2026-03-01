@@ -1,6 +1,6 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 
@@ -53,7 +53,7 @@ export default function Loading() {
             repeatDelay: 0.19,
             yoyo: true,
             repeat: -1,
-          }
+          },
         );
 
       const tl = gsap.timeline();
@@ -83,7 +83,7 @@ export default function Loading() {
 
       const colorizer = gsap.utils.random(
         [green, pink, blue, orange, cyan, "#a3a4ec", "#67b5c0", "#fd7c6e"],
-        true
+        true,
       );
       const rotator = gsap.utils.random(-50, 50, 1, true);
       const dir = (amt) => `${gsap.utils.random(["-", "+"])}=${amt}`;
@@ -117,7 +117,7 @@ export default function Loading() {
             x: dir(gsap.utils.random(40, 60, 1)),
             y: gsap.utils.random(-200, -220, 1),
             onComplete: () => animateNotes(els),
-          }
+          },
         );
       };
 
@@ -125,7 +125,7 @@ export default function Loading() {
         .add(animateNotes(notesG2), ">0.05")
         .add(animateNotes(notesG3), ">0.25");
     },
-    { dependencies: [darkMode, soleSignal], scope: containerRef.current }
+    { dependencies: [darkMode, soleSignal], scope: containerRef.current },
   );
   return (
     <div

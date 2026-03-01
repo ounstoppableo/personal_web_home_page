@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import useMoveLogic from "./hooks/useMoveLogic";
 import useResizeLogic from "./hooks/useResizeLogic";
 import gsap from "gsap";
 import useOperateLogic from "./hooks/useOperateLogic";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 interface Safari_01Props {
   handleOpenChange?: (openStatus: boolean) => any;
@@ -50,7 +50,7 @@ const SafariDialog: React.FC<Safari_01Props> = ({
     y: undefined,
   });
   const movingOrResizing = useSelector(
-    (state: any) => state.dialog.movingOrResizing
+    (state: any) => state.dialog.movingOrResizing,
   );
   const dialogContentContainerRef = useRef(null);
   const contentRef = useRef(null);
@@ -187,9 +187,10 @@ const SafariDialog: React.FC<Safari_01Props> = ({
     };
 
     window.addEventListener("resize", cb);
+    const _dialogRef = dialogRef.current;
     return () => {
       window.removeEventListener("resize", cb);
-      gsap.killTweensOf(dialogRef.current);
+      gsap.killTweensOf(_dialogRef);
     };
   }, []);
   return (
@@ -203,7 +204,7 @@ const SafariDialog: React.FC<Safari_01Props> = ({
         className={cn(
           "pointer-events-auto min-w-[50dvw] min-h-[50dvh] flex flex-col absolute top-0 left-0 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-muted shadow-md",
           className,
-          fullscreen ? "rounded-none" : ""
+          fullscreen ? "rounded-none" : "",
         )}
         ref={dialogRef}
       >

@@ -54,9 +54,6 @@ export default function MusicPlayer(props: any) {
   const [currentLyric, setCurrentLyric] = useState<any>("");
   const audioRef = useRef(null);
   const [playing, setPlaying] = useState(false);
-  useEffect(() => {
-    console.log(musicList);
-  }, [musicList]);
   function format(seconds) {
     const d = dayjs.duration(seconds, "seconds");
     const mm = String(d.minutes()).padStart(2, "0");
