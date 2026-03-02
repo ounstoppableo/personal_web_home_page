@@ -261,17 +261,21 @@ export default function MusicPlayer(props: any) {
       _audioRef?.removeEventListener("play", playCb);
     };
   }, [draw, playing, musicList]);
+
+  const musicContainerRef = useRef(null);
   useEffect(() => {
     const cb = () => {
-      if (innerWidth > 1680) {
+      if (!musicContainerRef.current) return;
+      const width = musicContainerRef.current.offsetWidth;
+      if (width > 1680) {
         frequencyCount.current = 30;
-      } else if (innerWidth > 1440) {
+      } else if (width > 1440) {
         frequencyCount.current = 26;
-      } else if (innerWidth > 1280) {
+      } else if (width > 1280) {
         frequencyCount.current = 22;
-      } else if (innerWidth > 1024) {
+      } else if (width > 1024) {
         frequencyCount.current = 18;
-      } else if (innerWidth > 800) {
+      } else if (width > 800) {
         frequencyCount.current = 14;
       } else {
         frequencyCount.current = 10;
@@ -283,7 +287,7 @@ export default function MusicPlayer(props: any) {
       window.removeEventListener("resize", cb);
       cancelAnimationFrame(animationFrameRef.current);
     };
-  }, []);
+  }, [musicList]);
 
   // 控制播放模式
   const [playMode, setPlayMode] = useState<"order" | "random">("order");
@@ -361,7 +365,10 @@ export default function MusicPlayer(props: any) {
     <>
       {musicList.length !== 0 && (
         <LiquidGlassCard>
-          <div className="w-full h-full py-[4vmin] px-[6vmin] flex flex-col gap-[2vmin] text-white">
+          <div
+            ref={musicContainerRef}
+            className="w-full h-full py-[4vmin] px-[6vmin] flex flex-col gap-[2vmin] text-white"
+          >
             <div className="flex gap-[2vmin] items-center">
               <div className="w-[12vmin] h-[12vmin] rounded-lg overflow-hidden">
                 <img

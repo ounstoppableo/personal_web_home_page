@@ -614,6 +614,7 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
                                               <div
                                                 key={app.id}
                                                 id={app.id}
+                                                title={app.name}
                                                 onClick={() => {
                                                   onAppClick(app);
                                                   createBounceAnimation(

@@ -383,17 +383,7 @@ export default function Layout() {
             </div>
           </div>
         )}
-        <div className="w-full gap-[8vmin] flex justify-center items-center relative z-0 [@media(min-aspect-ratio:4/1)]:hidden [@media(max-height:320px)]:hidden">
-          <div
-            ref={musicPlayerContainerRef}
-            onPointerDown={() => {
-              musicPlayerContainerRef.current.style.zIndex = 1;
-              cyptoMarketContainerRef.current.style.zIndex = 0;
-            }}
-            className="flex-1 shrink-0"
-          >
-            <MusicPlayer musicList={musicList}></MusicPlayer>
-          </div>
+        <div className="w-full gap-[4vmin] flex justify-center items-center relative z-0 [@media(min-aspect-ratio:4/1)]:hidden [@media(max-height:320px)]:hidden">
           <div
             ref={cyptoMarketContainerRef}
             onPointerDown={() => {
@@ -407,6 +397,16 @@ export default function Layout() {
                 <StatsCardWithData></StatsCardWithData>
               </TiltCard>
             </div>
+          </div>
+          <div
+            ref={musicPlayerContainerRef}
+            onPointerDown={() => {
+              musicPlayerContainerRef.current.style.zIndex = 1;
+              cyptoMarketContainerRef.current.style.zIndex = 0;
+            }}
+            className="flex-1 shrink-0"
+          >
+            <MusicPlayer musicList={musicList}></MusicPlayer>
           </div>
         </div>
         <div className="dialogBottomBoundary flex flex-col justify-center items-center gap-[2vmin] select-none z-[calc(var(--maxZIndex))]">
