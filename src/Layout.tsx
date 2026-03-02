@@ -19,6 +19,8 @@ import MusicPlayer from "./components/musicPlayer";
 import { App } from "antd";
 import TiltCard from "./components/3d-tilt-card";
 import StatsCardWithData from "./components/statsCard/stats-card-with-data";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 export default function Layout() {
   const [background, setBackground] = useState<string>("");
   const { message } = App.useApp();
@@ -327,8 +329,16 @@ export default function Layout() {
     }
   }, [background]);
 
+  // 中部小部件
   const musicPlayerContainerRef = useRef(null);
   const cyptoMarketContainerRef = useRef(null);
+  const [currentUnitIndex, setCurrentUnitIndex] = useState(0);
+  const verticalUnitContainerRef = useRef(null);
+  const { contextSafe } = useGSAP({ scope: verticalUnitContainerRef.current });
+  const handleUnitToggleDotClick = contextSafe((index) => {
+    setCurrentUnitIndex(index);
+    gsap.to(verticalUnitContainerRef.current, { x: -innerWidth * index });
+  });
 
   return (
     <div className="w-dvw h-dvh relative select-none">
@@ -383,14 +393,14 @@ export default function Layout() {
             </div>
           </div>
         )}
-        <div className="w-full gap-[4vmin] flex justify-center items-center relative z-0 [@media(min-aspect-ratio:4/1)]:hidden [@media(max-height:320px)]:hidden">
+        <div className="w-full gap-[6vmin] flex justify-center items-center relative z-0 [@media(min-aspect-ratio:4/1)]:hidden [@media(max-height:320px)]:hidden [@media(max-width:1024px)]:hidden">
           <div
             ref={cyptoMarketContainerRef}
             onPointerDown={() => {
               cyptoMarketContainerRef.current.style.zIndex = 1;
               musicPlayerContainerRef.current.style.zIndex = 0;
             }}
-            className="flex-1 relative h-full shrink-0 [@media(max-width:1024px)]:hidden"
+            className="flex-1 relative h-full shrink-0"
           >
             <div className="absolute inset-0">
               <TiltCard>
@@ -407,6 +417,48 @@ export default function Layout() {
             className="flex-1 shrink-0"
           >
             <MusicPlayer musicList={musicList}></MusicPlayer>
+          </div>
+        </div>
+        <div className="w-full relative z-0 [@media(min-aspect-ratio:4/1)]:hidden [@media(max-height:320px)]:hidden [@media(min-width:1024px)]:hidden">
+          <div
+            ref={verticalUnitContainerRef}
+            className="w-full h-full flex justify-start items-center gap-[12vmin]"
+          >
+            <div
+              ref={musicPlayerContainerRef}
+              onPointerDown={() => {
+                musicPlayerContainerRef.current.style.zIndex = 1;
+                cyptoMarketContainerRef.current.style.zIndex = 0;
+              }}
+              className="w-full shrink-0"
+            >
+              <MusicPlayer musicList={musicList}></MusicPlayer>
+            </div>
+            <div
+              ref={cyptoMarketContainerRef}
+              onPointerDown={() => {
+                cyptoMarketContainerRef.current.style.zIndex = 1;
+                musicPlayerContainerRef.current.style.zIndex = 0;
+              }}
+              className="w-full h-full shrink-0 relative"
+            >
+              <div className="absolute inset-0">
+                <TiltCard>
+                  <StatsCardWithData></StatsCardWithData>
+                </TiltCard>
+              </div>
+            </div>
+          </div>
+          <div className="absolute bottom-[-3vmin] left-1/2 -translate-x-1/2 flex gap-[1vmin]">
+            {Array.from({ length: 2 }).map((_, dotIndex) => (
+              <div
+                key={dotIndex}
+                className={`w-[1vmin] h-[1vmin] transition-all duration-500 rounded-full ${
+                  currentUnitIndex === dotIndex ? "bg-white" : "bg-gray-400"
+                } cursor-pointer`}
+                onClick={() => handleUnitToggleDotClick(dotIndex)}
+              />
+            ))}
           </div>
         </div>
         <div className="dialogBottomBoundary flex flex-col justify-center items-center gap-[2vmin] select-none z-[calc(var(--maxZIndex))]">

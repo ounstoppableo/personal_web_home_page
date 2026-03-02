@@ -209,13 +209,16 @@ export default function MusicPlayer(props: any) {
       let i = -1;
       const usableBins = Math.floor(analyser.current.frequencyBinCount * 0.6);
       const maxValue = Math.max(...audiaDataArray.current) || 1;
+      canvasCtx.current.strokeStyle = "rgba(209, 213, 220, 0.8)";
+      canvasCtx.current.lineWidth = strokeWidth;
       while (++i < count) {
         // 中间高效果
         const distance = Math.abs(i - mid) / mid;
         const weight = 1 - distance;
         const dataIndex = Math.floor((i / (count - 1)) * usableBins);
         const normalized = audiaDataArray.current[dataIndex] / maxValue;
-        const strokeHeight = maxStrokeHeight * normalized * weight + 2;
+        const strokeHeight =
+          maxStrokeHeight * normalized * weight + maxStrokeHeight * 0.1;
 
         // 绘制上半部分
         const x0 = strokeWidth / 2 + i * strokeWidth + i * strokeGap;
@@ -231,14 +234,15 @@ export default function MusicPlayer(props: any) {
 
         // 绘制直线
         canvasCtx.current.beginPath();
+        canvasCtx.current.beginPath();
         canvasCtx.current.moveTo(x0, y0);
         canvasCtx.current.lineTo(x1, y1);
+        canvasCtx.current.stroke();
+        canvasCtx.current.closePath();
+
+        canvasCtx.current.beginPath();
         canvasCtx.current.moveTo(x2, y2);
         canvasCtx.current.lineTo(x3, y3);
-        canvasCtx.current.lineCap = "round";
-        canvasCtx.current.lineJoin = "round";
-        canvasCtx.current.strokeStyle = "rgba(209, 213, 220, 0.8)";
-        canvasCtx.current.lineWidth = strokeWidth;
         canvasCtx.current.stroke();
         canvasCtx.current.closePath();
       }
