@@ -242,14 +242,16 @@ export const CryptoStatsCard = React.forwardRef<
                   className="h-[4vmin] w-[4vmin] rounded-sm"
                 />
                 <div>
-                  <p className="font-semibold">{coin.name}</p>
+                  <p className="font-semibold text-[2vmin] leading-[2vmin]">
+                    {coin.name}
+                  </p>
                   <p className="text-[1.3vmin] leading-[1.3vmin] text-muted-foreground">
                     {coin.symbol}
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-semibold">
+                <p className="font-semibold text-[2vmin] leading-[2vmin]">
                   {formatPrice(coin.price)}{" "}
                   <span className="text-[1.3vmin] leading-[1.3vmin] text-muted-foreground">
                     {currencySymbol}
