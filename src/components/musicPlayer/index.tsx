@@ -489,7 +489,7 @@ export default function MusicPlayer(props: any) {
                 <Button
                   variant="ghost"
                   className="rounded-full w-[8vmin] h-[8vmin] cursor-pointer hover:bg-black/20 flex justify-center items-center"
-                  onPointerDown={prev}
+                  onClick={prev}
                 >
                   <IoPlayBack className="size-[4vmin] text-white" />
                 </Button>
@@ -506,7 +506,7 @@ export default function MusicPlayer(props: any) {
                 <Button
                   variant="ghost"
                   className="rounded-full w-[8vmin] h-[8vmin] cursor-pointer hover:bg-black/20 flex justify-center items-center"
-                  onPointerDown={handlePlay}
+                  onClick={handlePlay}
                 >
                   {playing ? (
                     <FaPause className="size-[4vmin] text-white" />
@@ -527,7 +527,7 @@ export default function MusicPlayer(props: any) {
                 <Button
                   variant="ghost"
                   className="rounded-full w-[8vmin] h-[8vmin] cursor-pointer hover:bg-black/20 flex justify-center items-center"
-                  onPointerDown={next}
+                  onClick={next}
                 >
                   <IoPlayForward className="size-[4vmin] text-white" />
                 </Button>
