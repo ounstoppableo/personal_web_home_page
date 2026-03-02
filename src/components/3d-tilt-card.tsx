@@ -3,7 +3,11 @@
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import { useRef } from "react";
 
-export default function Card3D({ draggable = true, children }) {
+export default function Card3D({
+  draggable = true,
+  tiltable = true,
+  children,
+}) {
   const ref = useRef<HTMLDivElement>(null);
 
   const x = useMotionValue(0);
@@ -20,6 +24,7 @@ export default function Card3D({ draggable = true, children }) {
   });
 
   function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    if (!tiltable) return;
     const rect = ref.current!.getBoundingClientRect();
 
     const px = (e.clientX - rect.left) / rect.width;
@@ -59,9 +64,10 @@ export default function Card3D({ draggable = true, children }) {
     <motion.div
       style={{
         perspective: 1000,
+        cursor: draggable ? "grab" : "",
       }}
       {...motionProps}
-      className="w-full h-full cursor-grab"
+      className="w-full h-full"
     >
       <motion.div
         ref={ref}

@@ -47,7 +47,7 @@ function toSeconds(time) {
 }
 
 export default function MusicPlayer(props: any) {
-  const { musicList } = props;
+  const { musicList, draggable } = props;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentDuration, setCurrentDuration] = useState(0);
   const lyricList = useRef([]);
@@ -368,7 +368,7 @@ export default function MusicPlayer(props: any) {
   return (
     <>
       {musicList.length !== 0 && (
-        <LiquidGlassCard>
+        <LiquidGlassCard draggable={draggable}>
           <div
             ref={musicContainerRef}
             className="w-full h-full py-[4vmin] px-[6vmin] flex flex-col gap-[2vmin] text-white"
