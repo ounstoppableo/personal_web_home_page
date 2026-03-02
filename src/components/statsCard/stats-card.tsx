@@ -206,7 +206,7 @@ export const CryptoStatsCard = React.forwardRef<
           </h3>
           <div className="flex items-center justify-between text-[1.3vmin] leading-[1.3vmin]">
             {dominanceData.map((item) => (
-              <div key={item.name} className="flex items-center gap-2">
+              <div key={item.name} className="flex items-center gap-[1vmin]">
                 <span
                   className={cn("h-[1vmin] w-[1vmin] rounded-full", item.color)}
                 />
@@ -217,7 +217,7 @@ export const CryptoStatsCard = React.forwardRef<
               </div>
             ))}
           </div>
-          <div className="flex h-2 w-full rounded-full overflow-hidden">
+          <div className="flex items-center h-[1vmin] w-full rounded-full overflow-hidden">
             {dominanceData.map((item) => (
               <div
                 key={item.name}
