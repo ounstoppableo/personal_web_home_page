@@ -34,6 +34,12 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/imageFromMedia/, ""),
         autoRewrite: true,
       },
+      "/coinLore": {
+        target: "https://api.coinlore.net/api/",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/coinLore/, ""),
+        autoRewrite: true,
+      },
     },
   },
   resolve: {
