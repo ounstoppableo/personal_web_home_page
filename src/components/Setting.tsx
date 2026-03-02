@@ -91,7 +91,7 @@ export default function Settiing(props: any) {
   }, []);
 
   const appOpenMethod = useSelector(
-    (state: any) => state.setting.appOpenMethod
+    (state: any) => state.setting.appOpenMethod,
   );
   const dispatch = useDispatch();
   useEffect(() => {
@@ -99,7 +99,7 @@ export default function Settiing(props: any) {
   }, []);
 
   const [floatOpenStatus, setFloatOpenStatus] = useState<boolean>(
-    localStorage.getItem("floatClose") ? false : true
+    localStorage.getItem("floatClose") ? false : true,
   );
 
   const checkSeason = () => {
@@ -135,10 +135,6 @@ export default function Settiing(props: any) {
   }, []);
 
   // 暗黑模式持久化
-  useEffect(() => {
-    const localDarkMode = localStorage.getItem("darkMode");
-    dispatch(setDarkMode(localDarkMode === "false" ? false : true));
-  }, []);
   useEffect(() => {
     if (typeof darkMode === "boolean") {
       darkMode
@@ -263,7 +259,7 @@ export default function Settiing(props: any) {
                         onClick={() => {
                           localStorage.setItem(
                             "darkMode",
-                            JSON.stringify(false)
+                            JSON.stringify(false),
                           );
                           dispatch(setDarkMode(false));
                         }}
@@ -278,7 +274,7 @@ export default function Settiing(props: any) {
                         onClick={() => {
                           localStorage.setItem(
                             "darkMode",
-                            JSON.stringify(true)
+                            JSON.stringify(true),
                           );
                           dispatch(setDarkMode(true));
                         }}

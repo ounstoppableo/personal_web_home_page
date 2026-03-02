@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { CryptoStatsCard } from "./stats-card";
 export default function StatsCardWithData() {
   const [marketCapData, setMarketCapData] = useState({
@@ -82,15 +82,12 @@ export default function StatsCardWithData() {
         ]);
       }
     });
-    fetch(
-      "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=365&interval=daily",
-      {
-        headers: {
-          "content-type": "application/json",
-          "x-cg-demo-api-key": import.meta.env.VITE_COINGECKO_API_KEY,
-        },
-      }
-    ).then(async (res) => {
+    fetch("/api/bitcoin_market_chart", {
+      headers: {
+        "content-type": "application/json",
+        "x-cg-demo-api-key": import.meta.env.VITE_COINGECKO_API_KEY,
+      },
+    }).then(async (res) => {
       const body = await res.json();
       if (body && body.prices && body.prices.length !== 0) {
         setSparklineChartData(body.prices.map((item) => item[1]));

@@ -1,3 +1,4 @@
+import { getDarkMode } from "@/store/setting/settingSlice";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef, useState } from "react";
@@ -129,12 +130,12 @@ export default function Loading() {
   );
   return (
     <div
-      className={`w-full h-full bg-background bongo-cat-container ${
-        localStorage.getItem("darkMode") === "true" ? "dark" : "light"
+      className={`w-full h-full flex justify-center items-center bg-background bongo-cat-container ${
+        getDarkMode() ? "dark" : "light"
       }`}
       ref={containerRef}
     >
-      {localStorage.getItem("darkMode") === "true" ? (
+      {getDarkMode() ? (
         <div ref={bongoCatDarkRef} className="content">
           <div className="container">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 783.55 354.91">

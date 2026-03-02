@@ -1,5 +1,5 @@
 import * as React from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils"; // Your utility for merging class names
 
 // --- TYPE DEFINITIONS ---
@@ -87,7 +87,7 @@ const SparkLineChart = ({
           y = Math.max(strokeWidth, Math.min(height - strokeWidth, y));
           return `${x},${y}`;
         })
-        .join(" ")
+        .join(" "),
     );
   }, [width, height, min, max, range, data]);
   React.useEffect(() => {
@@ -159,14 +159,14 @@ export const CryptoStatsCard = React.forwardRef<
       className,
       ...props
     },
-    ref
+    ref,
   ) => {
     return (
       <div
         ref={ref}
         className={cn(
           "w-full h-full rounded-[inherit] border bg-card text-card-foreground shadow-sm p-[3vmin] space-y-[3vmin] overflow-auto no-scrollbar",
-          className
+          className,
         )}
         {...props}
       >
@@ -186,7 +186,7 @@ export const CryptoStatsCard = React.forwardRef<
           <div
             className={cn(
               "text-[1.5vmin] leading-[1.5vmin] font-semibold",
-              marketCapChange >= 0 ? "text-green-500" : "text-destructive"
+              marketCapChange >= 0 ? "text-green-500" : "text-destructive",
             )}
           >
             {marketCapChange >= 0 ? "+" : ""}
@@ -195,7 +195,7 @@ export const CryptoStatsCard = React.forwardRef<
         </div>
 
         {/* Chart Section */}
-        <div className="flex justify-center my-[2vmin] w-full h-[10vmin]">
+        <div className="flex justify-center my-[2vmin] w-full h-[8vmin]">
           <SparkLineChart data={chartData} />
         </div>
 
@@ -237,6 +237,7 @@ export const CryptoStatsCard = React.forwardRef<
             >
               <div className="flex items-center gap-3">
                 <img
+                  onDragStart={(e) => e.preventDefault()}
                   src={coin.iconUrl}
                   alt={`${coin.name} icon`}
                   className="h-[4vmin] w-[4vmin] rounded-sm"
@@ -260,7 +261,7 @@ export const CryptoStatsCard = React.forwardRef<
                 <p
                   className={cn(
                     "text-[1.3vmin] leading-[1.3vmin] font-medium",
-                    coin.change >= 0 ? "text-green-500" : "text-destructive"
+                    coin.change >= 0 ? "text-green-500" : "text-destructive",
                   )}
                 >
                   {coin.change >= 0 ? "+" : ""}
@@ -272,6 +273,6 @@ export const CryptoStatsCard = React.forwardRef<
         </div>
       </div>
     );
-  }
+  },
 );
 CryptoStatsCard.displayName = "CryptoStatsCard";

@@ -80,7 +80,7 @@ export default function Layout() {
   ];
   const macOsDockRef = useRef(null);
   const appOpenMethod = useSelector(
-    (state: any) => state.setting.appOpenMethod
+    (state: any) => state.setting.appOpenMethod,
   );
   const [musicList, setMusicList] = useState([]);
   const [globalLoading, setGlobalLoading] = useState(true);
@@ -127,7 +127,7 @@ export default function Layout() {
     lunar: solarLunar.solar2lunar(
       dayjs(now).format("YYYY"),
       dayjs(now).format("MM"),
-      dayjs(now).format("DD")
+      dayjs(now).format("DD"),
     ),
   });
   const updateTimeInfo = () => {
@@ -137,7 +137,7 @@ export default function Layout() {
       lunar: solarLunar.solar2lunar(
         dayjs(now).format("YYYY"),
         dayjs(now).format("MM"),
-        dayjs(now).format("DD")
+        dayjs(now).format("DD"),
       ),
     });
   };
@@ -282,27 +282,27 @@ export default function Layout() {
     return () => {
       iframeCommunicationListener.splice(
         iframeCommunicationListener.findIndex(
-          (listener) => listener === openAppListener
+          (listener) => listener === openAppListener,
         ),
-        1
+        1,
       );
       iframeCommunicationListener.splice(
         iframeCommunicationListener.findIndex(
-          (listener) => listener === loginSuccessListener
+          (listener) => listener === loginSuccessListener,
         ),
-        1
+        1,
       );
       iframeCommunicationListener.splice(
         iframeCommunicationListener.findIndex(
-          (listener) => listener === loginExpireListener
+          (listener) => listener === loginExpireListener,
         ),
-        1
+        1,
       );
       iframeCommunicationListener.splice(
         iframeCommunicationListener.findIndex(
-          (listener) => listener === handshakeListener
+          (listener) => listener === handshakeListener,
         ),
-        1
+        1,
       );
     };
   }, [appOpenMethod]);
@@ -352,7 +352,9 @@ export default function Layout() {
       ease: "power2.out",
     });
   });
+  const [verticalUnit, setVerticalUnit] = useState(false);
   useEffect(() => {
+    if (musicList.length === 0) return;
     const createDraggable = () => {
       draggableRef.current.forEach((draggableInst) => draggableInst.kill());
       draggableRef.current = Draggable.create(
@@ -372,7 +374,7 @@ export default function Layout() {
           onThrowComplete() {
             setCurrentUnitIndex(-this.x / innerWidth);
           },
-        }
+        },
       );
       handleUnitToggleDotClick(currentUnitIndexSync.current);
     };
@@ -381,6 +383,17 @@ export default function Layout() {
     return () => {
       window.removeEventListener("resize", createDraggable);
       draggableRef.current.forEach((draggableInst) => draggableInst.kill());
+    };
+  }, [musicList, verticalUnit]);
+
+  useEffect(() => {
+    const resizeCb = () => {
+      innerWidth > 1024 ? setVerticalUnit(false) : setVerticalUnit(true);
+    };
+    resizeCb();
+    window.addEventListener("resize", resizeCb);
+    return () => {
+      window.removeEventListener("resize", resizeCb);
     };
   }, []);
 
@@ -437,63 +450,75 @@ export default function Layout() {
             </div>
           </div>
         )}
-        <div className="w-full gap-[6vmin] flex justify-center items-center relative z-0 [@media(min-aspect-ratio:4/1)]:hidden [@media(max-height:320px)]:hidden [@media(max-width:1024px)]:hidden">
-          <div
-            ref={cyptoMarketContainerRef}
-            onPointerDown={() => {
-              cyptoMarketContainerRef.current.style.zIndex = 1;
-              musicPlayerContainerRef.current.style.zIndex = 0;
-            }}
-            className="flex-1 relative h-full shrink-0"
-          >
-            <div className="absolute inset-0">
-              <TiltCard>
-                <StatsCardWithData></StatsCardWithData>
-              </TiltCard>
-            </div>
-          </div>
-          <div
-            ref={musicPlayerContainerRef}
-            onPointerDown={() => {
-              musicPlayerContainerRef.current.style.zIndex = 1;
-              cyptoMarketContainerRef.current.style.zIndex = 0;
-            }}
-            className="flex-1 shrink-0"
-          >
-            <MusicPlayer musicList={musicList}></MusicPlayer>
-          </div>
-        </div>
-        <div className="w-full relative z-0 [@media(min-aspect-ratio:4/1)]:hidden [@media(max-height:540px)]:hidden [@media(min-width:1024px)]:hidden">
-          <div
-            ref={verticalUnitContainerRef}
-            className="w-full h-full flex justify-start items-center gap-[12vmin] cursor-grab"
-          >
-            <div className="w-full shrink-0">
-              <MusicPlayer
-                musicList={musicList}
-                draggable={false}
-              ></MusicPlayer>
-            </div>
-            <div className="w-full h-full shrink-0 relative">
-              <div className="absolute inset-0">
-                <TiltCard draggable={false} tiltable={false}>
-                  <StatsCardWithData></StatsCardWithData>
-                </TiltCard>
+        {musicList.length !== 0 && (
+          <>
+            {verticalUnit ? (
+              <div className="w-full relative z-0 [@media(min-aspect-ratio:4/1)]:hidden [@media(max-height:540px)]:hidden">
+                <div
+                  key={"verticalCyptoContainer"}
+                  ref={verticalUnitContainerRef}
+                  className="w-full h-full flex justify-start items-center gap-[12vmin] cursor-grab"
+                >
+                  <div className="w-full shrink-0">
+                    <MusicPlayer
+                      musicList={musicList}
+                      draggable={false}
+                    ></MusicPlayer>
+                  </div>
+                  <div className="w-full h-full shrink-0 relative">
+                    <div className="absolute inset-0">
+                      <TiltCard draggable={false} tiltable={false}>
+                        <StatsCardWithData></StatsCardWithData>
+                      </TiltCard>
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute bottom-[-2.4vmax] left-1/2 -translate-x-1/2 flex gap-[0.8vmax]">
+                  {Array.from({ length: 2 }).map((_, dotIndex) => (
+                    <div
+                      key={dotIndex}
+                      className={`w-[0.8vmax] h-[0.8vmax] transition-all duration-500 rounded-full ${
+                        currentUnitIndex === dotIndex
+                          ? "bg-white"
+                          : "bg-gray-400"
+                      } cursor-pointer`}
+                      onClick={() => handleUnitToggleDotClick(dotIndex)}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          </div>
-          <div className="absolute bottom-[-2.4vmax] left-1/2 -translate-x-1/2 flex gap-[0.8vmax]">
-            {Array.from({ length: 2 }).map((_, dotIndex) => (
-              <div
-                key={dotIndex}
-                className={`w-[0.8vmax] h-[0.8vmax] transition-all duration-500 rounded-full ${
-                  currentUnitIndex === dotIndex ? "bg-white" : "bg-gray-400"
-                } cursor-pointer`}
-                onClick={() => handleUnitToggleDotClick(dotIndex)}
-              />
-            ))}
-          </div>
-        </div>
+            ) : (
+              <div className="w-full gap-[6vmin] flex justify-center items-center relative z-0 [@media(min-aspect-ratio:4/1)]:hidden [@media(max-height:320px)]:hidden">
+                <div
+                  ref={cyptoMarketContainerRef}
+                  key={"horizontalCyptoContainer"}
+                  onPointerDown={() => {
+                    cyptoMarketContainerRef.current.style.zIndex = 1;
+                    musicPlayerContainerRef.current.style.zIndex = 0;
+                  }}
+                  className="flex-1 relative h-full shrink-0"
+                >
+                  <div className="absolute inset-0">
+                    <TiltCard>
+                      <StatsCardWithData></StatsCardWithData>
+                    </TiltCard>
+                  </div>
+                </div>
+                <div
+                  ref={musicPlayerContainerRef}
+                  onPointerDown={() => {
+                    musicPlayerContainerRef.current.style.zIndex = 1;
+                    cyptoMarketContainerRef.current.style.zIndex = 0;
+                  }}
+                  className="flex-1 shrink-0"
+                >
+                  <MusicPlayer musicList={musicList}></MusicPlayer>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
         <div className="dialogBottomBoundary flex flex-col justify-center items-center gap-[2vmin] select-none z-[calc(var(--maxZIndex))]">
           <MacOSDock
             initApps={initApps}
@@ -516,7 +541,7 @@ export default function Layout() {
               defaultMinimize={item.minimize}
               handleHeaderMouseDownCb={() => {
                 const index = dialogListSync.current.findIndex(
-                  (_item) => _item.id === item.id
+                  (_item) => _item.id === item.id,
                 );
                 setDialogList([
                   ...dialogListSync.current
@@ -534,7 +559,7 @@ export default function Layout() {
               }}
               handleMinimizeChange={(minimizeStatus) => {
                 const index = dialogListSync.current.findIndex(
-                  (_item) => _item.id === item.id
+                  (_item) => _item.id === item.id,
                 );
                 setDialogList([
                   ...dialogListSync.current.slice(0, index),
@@ -544,7 +569,7 @@ export default function Layout() {
                   },
                   ...dialogListSync.current.slice(
                     index + 1,
-                    dialogListSync.current.length
+                    dialogListSync.current.length,
                   ),
                 ]);
                 macOsDockRef.current.handleAppClick(item.id);
@@ -555,7 +580,7 @@ export default function Layout() {
               minimizeTargetSelector={item.minimizeTargetSelector}
               onClose={() => {
                 setDialogList(
-                  dialogList.filter((_item) => _item.id !== item.id)
+                  dialogList.filter((_item) => _item.id !== item.id),
                 );
               }}
             >

@@ -4,16 +4,25 @@ type SettingInitiate = {
   appOpenMethod: "inner" | "outer";
   darkMode: boolean;
 };
+
+export const getDarkMode = () => {
+  const localDarkMode = localStorage.getItem("darkMode");
+  return localDarkMode === "true"
+    ? true
+    : localDarkMode === "false"
+      ? false
+      : window.matchMedia("(prefers-color-scheme: dark)").matches;
+};
 export const settingSlice = createSlice({
   name: "setting",
   initialState: {
     appOpenMethod: "inner",
-    darkMode: false,
+    darkMode: getDarkMode(),
   } as SettingInitiate,
   reducers: {
     setAppOpenMethod: (
       state,
-      action: { payload: SettingInitiate["appOpenMethod"] }
+      action: { payload: SettingInitiate["appOpenMethod"] },
     ) => {
       state.appOpenMethod = action.payload;
     },
