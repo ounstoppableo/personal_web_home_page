@@ -50,7 +50,7 @@ const SafariDialog: React.FC<Safari_01Props> = ({
     y: undefined,
   });
   const movingOrResizing = useSelector(
-    (state: any) => state.dialog.movingOrResizing,
+    (state: any) => state.dialog.movingOrResizing
   );
   const dialogContentContainerRef = useRef(null);
   const contentRef = useRef(null);
@@ -204,7 +204,7 @@ const SafariDialog: React.FC<Safari_01Props> = ({
         className={cn(
           "pointer-events-auto min-w-[50dvw] min-h-[50dvh] flex flex-col absolute top-0 left-0 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-muted shadow-md",
           className,
-          fullscreen ? "rounded-none" : "",
+          fullscreen ? "rounded-none" : ""
         )}
         ref={dialogRef}
       >
@@ -217,7 +217,10 @@ const SafariDialog: React.FC<Safari_01Props> = ({
                 e.currentTarget.setPointerCapture(e.pointerId);
               }}
               onPointerMove={resizeMousemoveCb}
-              onPointerUp={resizeMouseupCb}
+              onPointerUp={(e) => {
+                resizeMouseupCb();
+                e.currentTarget.releasePointerCapture(e.pointerId);
+              }}
               style={{ touchAction: "none" }}
               className="absolute top-0 -translate-y-1/2 h-2 w-full bg-transparent cursor-n-resize"
             ></div>
@@ -228,7 +231,10 @@ const SafariDialog: React.FC<Safari_01Props> = ({
                 e.currentTarget.setPointerCapture(e.pointerId);
               }}
               onPointerMove={resizeMousemoveCb}
-              onPointerUp={resizeMouseupCb}
+              onPointerUp={(e) => {
+                resizeMouseupCb();
+                e.currentTarget.releasePointerCapture(e.pointerId);
+              }}
               style={{ touchAction: "none" }}
               className="absolute bottom-0 translate-y-1/2 h-2 w-full bg-transparent cursor-s-resize"
             ></div>
@@ -239,7 +245,10 @@ const SafariDialog: React.FC<Safari_01Props> = ({
                 e.currentTarget.setPointerCapture(e.pointerId);
               }}
               onPointerMove={resizeMousemoveCb}
-              onPointerUp={resizeMouseupCb}
+              onPointerUp={(e) => {
+                resizeMouseupCb();
+                e.currentTarget.releasePointerCapture(e.pointerId);
+              }}
               style={{ touchAction: "none" }}
               className="absolute left-0 -translate-x-1/2 w-2 h-full bg-transparent cursor-w-resize"
             ></div>
@@ -250,7 +259,10 @@ const SafariDialog: React.FC<Safari_01Props> = ({
                 e.currentTarget.setPointerCapture(e.pointerId);
               }}
               onPointerMove={resizeMousemoveCb}
-              onPointerUp={resizeMouseupCb}
+              onPointerUp={(e) => {
+                resizeMouseupCb();
+                e.currentTarget.releasePointerCapture(e.pointerId);
+              }}
               style={{ touchAction: "none" }}
               className="absolute right-0 translate-x-1/2 w-2 h-full bg-transparent cursor-e-resize"
             ></div>
@@ -262,7 +274,10 @@ const SafariDialog: React.FC<Safari_01Props> = ({
                 e.currentTarget.setPointerCapture(e.pointerId);
               }}
               onPointerMove={resizeMousemoveCb}
-              onPointerUp={resizeMouseupCb}
+              onPointerUp={(e) => {
+                resizeMouseupCb();
+                e.currentTarget.releasePointerCapture(e.pointerId);
+              }}
               style={{ touchAction: "none" }}
               className="absolute top-0 left-0 -translate-1/2 h-2 w-2 bg-transparent cursor-nw-resize"
             ></div>
@@ -273,7 +288,10 @@ const SafariDialog: React.FC<Safari_01Props> = ({
                 e.currentTarget.setPointerCapture(e.pointerId);
               }}
               onPointerMove={resizeMousemoveCb}
-              onPointerUp={resizeMouseupCb}
+              onPointerUp={(e) => {
+                resizeMouseupCb();
+                e.currentTarget.releasePointerCapture(e.pointerId);
+              }}
               style={{ touchAction: "none" }}
               className="absolute top-0 right-0  translate-x-1/2 -translate-y-1/2 h-2 w-2 bg-transparent cursor-ne-resize"
             ></div>
@@ -284,7 +302,10 @@ const SafariDialog: React.FC<Safari_01Props> = ({
                 e.currentTarget.setPointerCapture(e.pointerId);
               }}
               onPointerMove={resizeMousemoveCb}
-              onPointerUp={resizeMouseupCb}
+              onPointerUp={(e) => {
+                resizeMouseupCb();
+                e.currentTarget.releasePointerCapture(e.pointerId);
+              }}
               style={{ touchAction: "none" }}
               className="absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 h-2 w-2 bg-transparent cursor-sw-resize"
             ></div>
@@ -295,7 +316,10 @@ const SafariDialog: React.FC<Safari_01Props> = ({
                 e.currentTarget.setPointerCapture(e.pointerId);
               }}
               onPointerMove={resizeMousemoveCb}
-              onPointerUp={resizeMouseupCb}
+              onPointerUp={(e) => {
+                resizeMouseupCb();
+                e.currentTarget.releasePointerCapture(e.pointerId);
+              }}
               style={{ touchAction: "none" }}
               className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 h-2 w-2 bg-transparent cursor-se-resize"
             ></div>
@@ -310,7 +334,10 @@ const SafariDialog: React.FC<Safari_01Props> = ({
             e.currentTarget.setPointerCapture(e.pointerId);
           }}
           onPointerMove={moveMousemoveCb}
-          onPointerUp={moveMouseupCb}
+          onPointerUp={(e) => {
+            moveMouseupCb();
+            e.currentTarget.releasePointerCapture(e.pointerId);
+          }}
           style={{ touchAction: "none" }}
           className="rounded-[inherit] rounded-b-none overflow-hidden flex items-center justify-between px-4 py-2 bg-gray-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800"
         >

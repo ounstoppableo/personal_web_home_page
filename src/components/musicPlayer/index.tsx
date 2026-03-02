@@ -121,7 +121,7 @@ export default function MusicPlayer(props: any) {
               repeatDelay: 2,
               delay: 2,
               x: -scrollSpace,
-            },
+            }
           );
         }
       };
@@ -135,7 +135,7 @@ export default function MusicPlayer(props: any) {
     {
       dependencies: [musicList, currentIndex, currentLyric],
       scope: musicNameRef.current,
-    },
+    }
   );
   useGSAP(
     () => {
@@ -159,7 +159,7 @@ export default function MusicPlayer(props: any) {
               repeatDelay: 2,
               delay: 2,
               x: -scrollSpace,
-            },
+            }
           );
         }
       };
@@ -173,7 +173,7 @@ export default function MusicPlayer(props: any) {
     {
       dependencies: [musicList, currentIndex],
       scope: musicAuthorRef.current,
-    },
+    }
   );
 
   // 音频绘制
@@ -326,9 +326,9 @@ export default function MusicPlayer(props: any) {
       setCurrentLyric(
         lyricList.current[
           lyricList.current.findIndex(
-            (item) => item.seconds > audioRef.current.currentTime,
+            (item) => item.seconds > audioRef.current.currentTime
           ) - 1
-        ]?.lyric || "",
+        ]?.lyric || ""
       );
 
     !processMove.current &&
@@ -426,8 +426,8 @@ export default function MusicPlayer(props: any) {
                       finaltTime < 0
                         ? 0
                         : finaltTime > currentDuration
-                          ? currentDuration
-                          : finaltTime;
+                        ? currentDuration
+                        : finaltTime;
                     pointerDownInfo.current.finalScale =
                       _scale < 0 ? 0 : _scale > 1 ? 1 : _scale;
                     xTo.current(pointerDownInfo.current.finalScale);
@@ -444,8 +444,8 @@ export default function MusicPlayer(props: any) {
                       finaltTime < 0
                         ? 0
                         : finaltTime > currentDuration
-                          ? currentDuration
-                          : finaltTime;
+                        ? currentDuration
+                        : finaltTime;
                   }
                   if (!pointerDownInfo.current.finalScale) {
                     const finalScale =
@@ -456,6 +456,7 @@ export default function MusicPlayer(props: any) {
                   }
                   audioRef.current.currentTime =
                     pointerDownInfo.current.finalTime;
+                  setCurrentTime(pointerDownInfo.current.finalTime);
                   xTo.current(pointerDownInfo.current.finalScale);
                 }}
               >

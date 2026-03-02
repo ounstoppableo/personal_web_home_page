@@ -115,16 +115,8 @@ const SparkLineChart = ({
       >
         <defs>
           <linearGradient id="sparkline-gradient" x1="0" y1="0" x2="0" y2="1">
-            <stop
-              offset="0%"
-              stopColor="hsl(var(--primary))"
-              stopOpacity="0.2"
-            />
-            <stop
-              offset="100%"
-              stopColor="hsl(var(--primary))"
-              stopOpacity="0"
-            />
+            <stop offset="0%" stopColor="var(--foreground)" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="var(--foreground)" stopOpacity="0" />
           </linearGradient>
         </defs>
         <motion.path
@@ -180,20 +172,20 @@ export const CryptoStatsCard = React.forwardRef<
       >
         {/* Market Cap Section */}
         <div className="space-y-[1vmin]">
-          <h3 className="text-[1.5vmin] font-medium text-muted-foreground">
+          <h3 className="text-[1.5vmin] leading-[1.5vmin] font-medium text-muted-foreground">
             Crypto market cap
           </h3>
           <div className="flex items-baseline gap-[1vmin]">
-            <span className="text-[3vmin] font-bold">
+            <span className="text-[3vmin] leading-[3vmin] font-bold">
               {formatMarketCap(marketCapUSD)}
             </span>
-            <span className="text-[2vmin] font-medium text-muted-foreground">
+            <span className="text-[2vmin] leading-[2vmin] font-medium text-muted-foreground">
               {currencySymbol}
             </span>
           </div>
           <div
             className={cn(
-              "text-[1.5vmin] font-semibold",
+              "text-[1.5vmin] leading-[1.5vmin] font-semibold",
               marketCapChange >= 0 ? "text-green-500" : "text-destructive"
             )}
           >
@@ -209,10 +201,10 @@ export const CryptoStatsCard = React.forwardRef<
 
         {/* Dominance Section */}
         <div className="space-y-[1.5vmin]">
-          <h3 className="text-[1.5vmin] font-medium text-muted-foreground">
+          <h3 className="text-[1.5vmin] leading-[1.5vmin] font-medium text-muted-foreground">
             Bitcoin dominance
           </h3>
-          <div className="flex items-center justify-between text-[1.2vmin]">
+          <div className="flex items-center justify-between text-[1.3vmin] leading-[1.3vmin]">
             {dominanceData.map((item) => (
               <div key={item.name} className="flex items-center gap-2">
                 <span
@@ -247,11 +239,11 @@ export const CryptoStatsCard = React.forwardRef<
                 <img
                   src={coin.iconUrl}
                   alt={`${coin.name} icon`}
-                  className="h-[4vmin] w-[4vmin]"
+                  className="h-[4vmin] w-[4vmin] rounded-sm"
                 />
                 <div>
                   <p className="font-semibold">{coin.name}</p>
-                  <p className="text-[1.2vmin] text-muted-foreground">
+                  <p className="text-[1.3vmin] leading-[1.3vmin] text-muted-foreground">
                     {coin.symbol}
                   </p>
                 </div>
@@ -259,16 +251,17 @@ export const CryptoStatsCard = React.forwardRef<
               <div className="text-right">
                 <p className="font-semibold">
                   {formatPrice(coin.price)}{" "}
-                  <span className="text-[1.2vmin] text-muted-foreground">
+                  <span className="text-[1.3vmin] leading-[1.3vmin] text-muted-foreground">
                     {currencySymbol}
                   </span>
                 </p>
                 <p
                   className={cn(
-                    "text-[1.2vmin] font-medium",
+                    "text-[1.3vmin] leading-[1.3vmin] font-medium",
                     coin.change >= 0 ? "text-green-500" : "text-destructive"
                   )}
                 >
+                  {coin.change >= 0 ? "+" : ""}
                   {coin.change.toFixed(2)}%
                 </p>
               </div>

@@ -71,7 +71,6 @@ export default function Card3D({ draggable = true, children }) {
           rotateX,
           rotateY,
         }}
-        whileHover={{ scale: 1.02 }}
         className="w-ful h-full rounded-[2rem] shadow-2xl"
       >
         {children}

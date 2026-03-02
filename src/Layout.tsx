@@ -327,6 +327,9 @@ export default function Layout() {
     }
   }, [background]);
 
+  const musicPlayerContainerRef = useRef(null);
+  const cyptoMarketContainerRef = useRef(null);
+
   return (
     <div className="w-dvw h-dvh relative select-none">
       {globalLoading && (
@@ -381,10 +384,24 @@ export default function Layout() {
           </div>
         )}
         <div className="w-full gap-[8vmin] flex justify-center items-center relative z-0 [@media(min-aspect-ratio:4/1)]:hidden [@media(max-height:320px)]:hidden">
-          <div className="flex-1 shrink-0">
+          <div
+            ref={musicPlayerContainerRef}
+            onPointerDown={() => {
+              musicPlayerContainerRef.current.style.zIndex = 1;
+              cyptoMarketContainerRef.current.style.zIndex = 0;
+            }}
+            className="flex-1 shrink-0"
+          >
             <MusicPlayer musicList={musicList}></MusicPlayer>
           </div>
-          <div className="flex-1 relative h-full shrink-0 [@media(max-width:1024px)]:hidden">
+          <div
+            ref={cyptoMarketContainerRef}
+            onPointerDown={() => {
+              cyptoMarketContainerRef.current.style.zIndex = 1;
+              musicPlayerContainerRef.current.style.zIndex = 0;
+            }}
+            className="flex-1 relative h-full shrink-0 [@media(max-width:1024px)]:hidden"
+          >
             <div className="absolute inset-0">
               <TiltCard>
                 <StatsCardWithData></StatsCardWithData>

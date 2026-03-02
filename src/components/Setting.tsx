@@ -91,7 +91,7 @@ export default function Settiing(props: any) {
   }, []);
 
   const appOpenMethod = useSelector(
-    (state: any) => state.setting.appOpenMethod,
+    (state: any) => state.setting.appOpenMethod
   );
   const dispatch = useDispatch();
   useEffect(() => {
@@ -99,7 +99,7 @@ export default function Settiing(props: any) {
   }, []);
 
   const [floatOpenStatus, setFloatOpenStatus] = useState<boolean>(
-    localStorage.getItem("floatClose") ? false : true,
+    localStorage.getItem("floatClose") ? false : true
   );
 
   const checkSeason = () => {
@@ -171,8 +171,9 @@ export default function Settiing(props: any) {
                   triggerBtnRef.current.getBoundingClientRect();
                 e.currentTarget.setPointerCapture(e.pointerId);
               }}
-              onPointerUp={() => {
+              onPointerUp={(e) => {
                 setMoveFlag(false);
+                e.currentTarget.releasePointerCapture(e.pointerId);
               }}
               onPointerMove={(e) => {
                 if (moveFlag) {
@@ -262,7 +263,7 @@ export default function Settiing(props: any) {
                         onClick={() => {
                           localStorage.setItem(
                             "darkMode",
-                            JSON.stringify(false),
+                            JSON.stringify(false)
                           );
                           dispatch(setDarkMode(false));
                         }}
@@ -277,7 +278,7 @@ export default function Settiing(props: any) {
                         onClick={() => {
                           localStorage.setItem(
                             "darkMode",
-                            JSON.stringify(true),
+                            JSON.stringify(true)
                           );
                           dispatch(setDarkMode(true));
                         }}

@@ -35,7 +35,7 @@ export default defineConfig({
         autoRewrite: true,
       },
       "/coinLore": {
-        target: "https://api.coinlore.net/api/",
+        target: "https://api.coinlore.net/api",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/coinLore/, ""),
         autoRewrite: true,
