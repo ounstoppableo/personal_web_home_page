@@ -62,57 +62,19 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
     const iconRefs = useRef<(HTMLDivElement | null)[]>([]);
     const animationFrameRef = useRef<number | undefined>(undefined);
     const lastMouseMoveTime = useRef<number>(0);
-
-    const _handleAppClick = (appId: string) => {
+    const _handleAppClick = useCallback((appId: string) => {
       setOpenApps((prev) =>
         prev.includes(appId)
           ? prev.filter((id) => id !== appId)
           : [...prev, appId]
       );
-    };
-
-    // Responsive size calculations based on viewport
-    const getResponsiveConfig = useCallback(() => {
-      if (typeof window === "undefined") {
-        return { baseIconSize: 64, maxScale: 1.6, effectWidth: 240 };
-      }
-
-      // Base calculations on smaller dimension for better mobile experience
-      const smallerDimension = Math.min(window.innerWidth, window.innerHeight);
-
-      // Scale icon size based on screen size
-      if (smallerDimension < 480) {
-        // Mobile phones
-        return {
-          baseIconSize: Math.max(40, smallerDimension * 0.08),
-          maxScale: 1.4,
-          effectWidth: smallerDimension * 0.4,
-        };
-      } else if (smallerDimension < 768) {
-        // Tablets
-        return {
-          baseIconSize: Math.max(48, smallerDimension * 0.07),
-          maxScale: 1.5,
-          effectWidth: smallerDimension * 0.35,
-        };
-      } else if (smallerDimension < 1024) {
-        // Small laptops
-        return {
-          baseIconSize: Math.max(56, smallerDimension * 0.06),
-          maxScale: 1.6,
-          effectWidth: smallerDimension * 0.3,
-        };
-      } else {
-        // Desktop and large screens
-        return {
-          baseIconSize: Math.max(64, Math.min(80, smallerDimension * 0.05)),
-          maxScale: 1.8,
-          effectWidth: 300,
-        };
-      }
     }, []);
 
-    const [config] = useState(getResponsiveConfig());
+    const [config, setConfig] = useState({
+      baseIconSize: 0,
+      maxScale: 0,
+      effectWidth: 0,
+    });
     const { baseIconSize, maxScale, effectWidth } = config;
     const minScale = 1.0;
     const baseSpacing = Math.max(4, baseIconSize * 0.08);
@@ -182,7 +144,6 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
       const targetScales = calculateTargetMagnification(mouseXSync.current);
       const targetPositions = calculatePositions(targetScales);
       const lerpFactor = mouseXSync.current !== null ? 0.2 : 0.12;
-
       setCurrentScales((prevScales) => {
         return prevScales.map((currentScale, index) => {
           const diff = targetScales[index] - currentScale;
@@ -232,11 +193,6 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
       };
     }, [animateToTarget]);
 
-    const dockeRect = useRef<any>({});
-    useEffect(() => {
-      dockeRect.current = dockRef.current.getBoundingClientRect();
-    }, []);
-
     // Throttled mouse movement handler
     const handleMouseMove = useCallback(
       (e: React.MouseEvent) => {
@@ -249,7 +205,6 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
         }
 
         lastMouseMoveTime.current = now;
-
         if (dockRef.current) {
           const padding = Math.max(8, baseIconSize * 0.12);
           setMouseX(e.clientX - dockeRect.current.left - padding);
@@ -262,15 +217,18 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
       setMouseX(null);
     }, []);
 
-    const handleAppClick = (appId: string, index: number) => {
-      if (iconRefs.current[index]) {
-        createBounceAnimation(iconRefs.current[index]!);
-      }
-      _handleAppClick(appId);
-      if (appId !== "folder") {
-        onAppClick(initApps.find((app) => app.id === appId));
-      }
-    };
+    const handleAppClick = useCallback(
+      (appId: string, index: number) => {
+        if (iconRefs.current[index]) {
+          createBounceAnimation(iconRefs.current[index]!);
+        }
+        _handleAppClick(appId);
+        if (appId !== "folder") {
+          onAppClick(initApps.find((app) => app.id === appId));
+        }
+      },
+      [createBounceAnimation]
+    );
 
     useImperativeHandle(ref, () => ({
       handleAppClick: (
@@ -300,14 +258,14 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
       y: number;
     } | null>({ x: 0, y: 0 });
     const folderContainerPositionSync = useRef(folderContainerPosition);
-    const setFolderContainerPosition = (value) => {
+    const setFolderContainerPosition = useCallback((value) => {
       folderContainerPositionSync.current = value;
       _setFolderContainerPosition(value);
-    };
+    }, []);
     const { contextSafe: contextSafeForFolderContainer } = useGSAP({
       scope: appContainerRef.current,
     });
-    const updateAppContainerPosition = () => {
+    const updateAppContainerPosition = useCallback(() => {
       const appContainerRect =
         appContainerFixedAnchorRef.current.getBoundingClientRect();
       if (appContainerRect.width + appContainerRect.left > innerWidth) {
@@ -321,80 +279,9 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
           y: appContainerRect.top,
         });
       }
-    };
+    }, []);
 
     const draggableRef = useRef<any>([]);
-    const handleFolderClick = contextSafeForFolderContainer(() => {
-      draggableRef.current.forEach((draggableInst) => draggableInst.kill());
-      if (openAppsRef.current.includes("folder")) {
-        setCurrentFolderPage(0);
-        updateAppContainerPosition();
-        gsap.set(draggableContainer.current, {
-          x: 0,
-        });
-        gsap.fromTo(
-          appContainerRef.current,
-          { scale: 1, opacity: 1 },
-          {
-            scale: 0,
-            opacity: 0,
-            y: folderContainerPositionSync.current.y,
-            duration: 0.4,
-          }
-        );
-      } else {
-        updateAppContainerPosition();
-        gsap.set(appContainerRef.current, {
-          x: folderContainerPositionSync.current.x,
-          y: folderContainerPositionSync.current.y,
-        });
-        gsap.fromTo(
-          appContainerRef.current,
-          { scale: 0, opacity: 0 },
-          {
-            scale: 1,
-            opacity: 1,
-            duration: 0.4,
-            onComplete: () => {
-              gsap.fromTo(
-                appContainerRef.current.querySelector(".blurContainer"),
-                { backdropFilter: "blur(0px)" },
-                {
-                  backdropFilter: "blur(10px)",
-                  duration: 0.4,
-                }
-              );
-              const appContainerRect =
-                appContainerRef.current.getBoundingClientRect();
-
-              draggableRef.current = Draggable.create(
-                draggableContainer.current,
-                {
-                  type: "x",
-                  bounds: {
-                    minX: -(folderPageCount - 1) * appContainerRect.width,
-                    maxX: 0,
-                  },
-                  inertia: true,
-                  snap: {
-                    x: Array.from({ length: folderPageCount }).map(
-                      (_, index) => -index * appContainerRect.width
-                    ),
-                  },
-                  edgeResistance: 0.8,
-                  dragResistance: 0.3,
-                  onThrowComplete() {
-                    setCurrentFolderPage(
-                      Math.abs(Math.round(this.x / appContainerRect.width))
-                    );
-                  },
-                }
-              );
-            },
-          }
-        );
-      }
-    });
     useEffect(() => {
       return () => {
         draggableRef.current.forEach((draggableInst) => draggableInst.kill());
@@ -415,10 +302,84 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
     const [folderPageCount, setFolderPageCount] = useState<number>(0);
     const [currentFolderPage, _setCurrentFolderPage] = useState<number>(0);
     const currentFolderPageSync = useRef<number>(currentFolderPage);
-    const setCurrentFolderPage = (page: number) => {
+    const setCurrentFolderPage = useCallback((page: number) => {
       _setCurrentFolderPage(page);
       currentFolderPageSync.current = page;
-    };
+    }, []);
+    const handleFolderClick = useCallback(
+      contextSafeForFolderContainer(() => {
+        draggableRef.current.forEach((draggableInst) => draggableInst.kill());
+        if (openAppsRef.current.includes("folder")) {
+          setCurrentFolderPage(0);
+          updateAppContainerPosition();
+          gsap.set(draggableContainer.current, {
+            x: 0,
+          });
+          gsap.fromTo(
+            appContainerRef.current,
+            { scale: 1, opacity: 1 },
+            {
+              scale: 0,
+              opacity: 0,
+              y: folderContainerPositionSync.current.y,
+              duration: 0.4,
+            }
+          );
+        } else {
+          updateAppContainerPosition();
+          gsap.set(appContainerRef.current, {
+            x: folderContainerPositionSync.current.x,
+            y: folderContainerPositionSync.current.y,
+          });
+          gsap.fromTo(
+            appContainerRef.current,
+            { scale: 0, opacity: 0 },
+            {
+              scale: 1,
+              opacity: 1,
+              duration: 0.4,
+              onComplete: () => {
+                gsap.fromTo(
+                  appContainerRef.current.querySelector(".blurContainer"),
+                  { backdropFilter: "blur(0px)" },
+                  {
+                    backdropFilter: "blur(10px)",
+                    duration: 0.4,
+                  }
+                );
+                const appContainerRect =
+                  appContainerRef.current.getBoundingClientRect();
+
+                draggableRef.current = Draggable.create(
+                  draggableContainer.current,
+                  {
+                    type: "x",
+                    bounds: {
+                      minX: -(folderPageCount - 1) * appContainerRect.width,
+                      maxX: 0,
+                    },
+                    inertia: true,
+                    snap: {
+                      x: Array.from({ length: folderPageCount }).map(
+                        (_, index) => -index * appContainerRect.width
+                      ),
+                    },
+                    edgeResistance: 0.8,
+                    dragResistance: 0.3,
+                    onThrowComplete() {
+                      setCurrentFolderPage(
+                        Math.abs(Math.round(this.x / appContainerRect.width))
+                      );
+                    },
+                  }
+                );
+              },
+            }
+          );
+        }
+      }),
+      [folderPageCount]
+    );
     useEffect(() => {
       setFolderPageCount(
         Math.ceil(folderApps.filter((app) => app.id !== "folder").length / 9)
@@ -430,8 +391,8 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
     const { contextSafe: contextSafeForPageContainer } = useGSAP({
       scope: draggableContainer.current,
     });
-    const handlePageChange = contextSafeForPageContainer(
-      (pageIndex: number) => {
+    const handlePageChange = useCallback(
+      contextSafeForPageContainer((pageIndex: number) => {
         setCurrentFolderPage(pageIndex);
         const rect = pageContainer.current.getBoundingClientRect();
         gsap.to(draggableContainer.current, {
@@ -439,28 +400,78 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
           duration: 0.5,
           ease: "power2.out",
         });
-      }
+      }),
+      []
     );
-
     // Update config on window resize
+    const antiShake = useRef(null);
+    const dockeRect = useRef<any>({});
+
     useEffect(() => {
       const handleResize = () => {
+        const getResponsiveConfig: any = () => {
+          if (typeof window === "undefined") {
+            return { baseIconSize: 64, maxScale: 1.6, effectWidth: 240 };
+          }
+
+          // Base calculations on smaller dimension for better mobile experience
+          const smallerDimension = Math.min(
+            window.innerWidth,
+            window.innerHeight
+          );
+
+          // Scale icon size based on screen size
+          if (smallerDimension < 480) {
+            // Mobile phones
+            return {
+              baseIconSize: Math.max(40, smallerDimension * 0.08),
+              maxScale: 1.4,
+              effectWidth: smallerDimension * 0.4,
+            };
+          } else if (smallerDimension < 768) {
+            // Tablets
+            return {
+              baseIconSize: Math.max(48, smallerDimension * 0.07),
+              maxScale: 1.5,
+              effectWidth: smallerDimension * 0.35,
+            };
+          } else if (smallerDimension < 1024) {
+            // Small laptops
+            return {
+              baseIconSize: Math.max(56, smallerDimension * 0.06),
+              maxScale: 1.6,
+              effectWidth: smallerDimension * 0.3,
+            };
+          } else {
+            // Desktop and large screens
+            return {
+              baseIconSize: Math.max(64, Math.min(80, smallerDimension * 0.05)),
+              maxScale: 1.8,
+              effectWidth: 300,
+            };
+          }
+        };
         if (openAppsRef.current.includes("folder")) {
           handleFolderClick();
           _handleAppClick("folder");
         }
-        requestAnimationFrame(() => {
+        if (antiShake.current) clearTimeout(antiShake.current);
+        setTimeout(() => {
+          dockeRect.current = dockRef.current.getBoundingClientRect();
+          setConfig(getResponsiveConfig());
           updateAppContainerPosition();
           gsap.set(appContainerRef.current, {
             x: folderContainerPositionSync.current.x,
             y: folderContainerPositionSync.current.y,
           });
-        });
+        }, 100);
       };
-
+      handleResize();
       window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
-    }, [getResponsiveConfig, handleFolderClick, _handleAppClick]);
+      return () => {
+        window.removeEventListener("resize", handleResize);
+      };
+    }, [handleFolderClick, _handleAppClick]);
 
     useEffect(() => {
       let flag = false;
@@ -626,6 +637,9 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
                                                 <img
                                                   src={app.icon}
                                                   alt={app.name}
+                                                  onDragStart={(e) =>
+                                                    e.preventDefault()
+                                                  }
                                                   className="group-hover:brightness-80 transition-all duration-200 object-contain h-[calc(100%-2vmin)]"
                                                 />
                                                 <div className="text-white text-[2vmin] leading-[2vmin] w-full text-center truncate">
@@ -677,6 +691,7 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
                             .map((app) => {
                               return (
                                 <img
+                                  onDragStart={(e) => e.preventDefault()}
                                   key={app.id}
                                   src={app.icon}
                                   alt={app.name}
@@ -693,6 +708,7 @@ const MacOSDock: React.FC<MacOSDockProps> = forwardRef(
                       alt={app.name}
                       width={scaledSize}
                       height={scaledSize}
+                      onDragStart={(e) => e.preventDefault()}
                       className="object-contain"
                       style={{
                         filter: `drop-shadow(0 ${

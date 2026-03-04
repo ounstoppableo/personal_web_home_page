@@ -18,10 +18,10 @@ export default function useOperateLogic(props: any) {
     refreshContentSize,
   } = props;
   const [open, setOpen] = useState(
-    typeof defaultOpen === "boolean" ? defaultOpen : false,
+    typeof defaultOpen === "boolean" ? defaultOpen : false
   );
   const [minimize, _setMinimize] = useState(
-    typeof defaultMinimize === "boolean" ? defaultMinimize : false,
+    typeof defaultMinimize === "boolean" ? defaultMinimize : false
   );
   const minimizeSync = useRef(minimize);
   const setMinimize = (value) => {
@@ -29,7 +29,7 @@ export default function useOperateLogic(props: any) {
     minimizeSync.current = value;
   };
   const [fullscreen, _setFullscreen] = useState(
-    typeof defaultFullscreen === "boolean" ? defaultFullscreen : false,
+    typeof defaultFullscreen === "boolean" ? defaultFullscreen : false
   );
   const fullscreenSync = useRef(fullscreen);
   const setFullscreen = (value) => {
@@ -49,7 +49,9 @@ export default function useOperateLogic(props: any) {
     const targetRect = document
       .querySelector(minimizeTargetSelector)
       ?.getBoundingClientRect?.();
-    if (fullscreen) await handleFullscreen();
+    if (fullscreen) {
+      setFullscreen(false);
+    }
     const _handleMinimize = (minimize) => {
       if (minimize) {
         if (targetRect) {
@@ -63,6 +65,8 @@ export default function useOperateLogic(props: any) {
             {
               scaleX: 0,
               scaleY: 0,
+              width: originalInfo.current.width,
+              height: originalInfo.current.height,
               x:
                 targetRect.x +
                 targetRect.width / 2 -
@@ -70,7 +74,7 @@ export default function useOperateLogic(props: any) {
               y: targetRect.y - originalInfo.current.height / 2,
               duration: 0.3,
               ease: "power2.out",
-            },
+            }
           );
         } else {
           gsap.fromTo(
@@ -84,7 +88,7 @@ export default function useOperateLogic(props: any) {
               scaleX: 0,
               scaleY: 0,
               duration: 0.3,
-            },
+            }
           );
         }
       } else {
@@ -103,7 +107,7 @@ export default function useOperateLogic(props: any) {
                   scaleY: 1,
                   duration: 0.3,
                   onComplete: refreshContentSize,
-                },
+                }
               )
             : gsap.fromTo(
                 dialogRef.current,
@@ -124,7 +128,7 @@ export default function useOperateLogic(props: any) {
                   y: originalInfo.current.y,
                   duration: 0.3,
                   onComplete: refreshContentSize,
-                },
+                }
               );
         } else {
           gsap.fromTo(
@@ -138,7 +142,7 @@ export default function useOperateLogic(props: any) {
               scaleX: 1,
               scaleY: 1,
               duration: 0.3,
-            },
+            }
           );
         }
       }
@@ -158,7 +162,7 @@ export default function useOperateLogic(props: any) {
       typeof defaultMinimize === "boolean" && handleMinimize(defaultMinimize);
     });
     setFullscreen(
-      typeof defaultFullscreen === "boolean" ? defaultFullscreen : false,
+      typeof defaultFullscreen === "boolean" ? defaultFullscreen : false
     );
   }, [defaultOpen, defaultMinimize, defaultFullscreen]);
 
