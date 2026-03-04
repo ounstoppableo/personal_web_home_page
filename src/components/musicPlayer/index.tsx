@@ -326,6 +326,7 @@ export default function MusicPlayer(props: any) {
       audioRef.current.pause();
     } else {
       audioRef.current.play();
+      audioRef.current.currentTime = pointerDownInfo.current.finalTime;
     }
   };
   const playingCb = useCallback(() => {
